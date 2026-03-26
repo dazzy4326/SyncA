@@ -1,0 +1,25 @@
+[Unit]
+Description=Environment Sensing Python Script
+# ネットワークがつながってから起動
+After=network.target
+
+[Service]
+# スクリプトの実行コマンド (python3のパス + スクリプトのパス)
+ExecStart=/usr/bin/python3 /home/tohata02/tohata/env_get_api.py
+
+# 実行時の作業ディレクトリ (これがないとファイルの読み書きでエラーになることがある)
+WorkingDirectory=/home/tohata02/tohata
+
+# 出力をシステムログに流す
+StandardOutput=inherit
+StandardError=inherit
+
+# エラーで停止しても自動再起動する
+Restart=always
+RestartSec=10s
+
+# 実行ユーザー (I2CやSerial権限が必要なため pi ユーザーを指定)
+User=tohata02
+
+[Install]
+WantedBy=multi-user.target

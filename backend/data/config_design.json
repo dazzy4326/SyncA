@@ -1,0 +1,114 @@
+{
+  "PI_LOCATIONS": [
+    { "ras_pi_id": "ras_01", "x": 6635, "y": 1800 },
+    { "ras_pi_id": "ras_02", "x": 1240, "y": 1800 },
+    { "ras_pi_id": "ras_03", "x": 6635, "y": 6230 },
+    { "ras_pi_id": "ras_04", "x": 1240, "y": 6230 },
+    { "ras_pi_id": "ras_05", "x": 6635, "y": 11145 },
+    { "ras_pi_id": "ras_06", "x": 1240, "y": 11145 },
+    { "ras_pi_id": "ras_07", "x": 4835, "y": 1800 },
+    { "ras_pi_id": "ras_08", "x": 4835, "y": 6230 },
+    { "ras_pi_id": "ras_09", "x": 4835, "y": 11145 }
+  ],
+  "BEACON_GROUND_TRUTH": {
+    "1A7BFF5E-BAE7-462D-978E-574155DF4F85": [3035, 9345],
+    "1AFD3201-5C66-4F98-A201-B778A7FF0912": [3035, 4915]
+  },
+  "BEACON_ACTUAL_DISTANCES": {
+    "8AE1A19D-3782-4E73-8A57-968B4E4DC6F5": {
+      "1": 500,
+      "2": 500,
+      "3": 500,
+      "4": 500,
+      "5": 500,
+      "6": 500,
+      "7": 500,
+      "8": 500,
+      "9": 500
+    },
+    "1A7BFF5E-BAE7-462D-978E-574155DF4F85": {
+      "1": 500,
+      "2": 500,
+      "3": 500,
+      "4": 500,
+      "5": 500,
+      "6": 500,
+      "7": 500,
+      "8": 500,
+      "9": 500
+    },
+    "C8BBB8A8-7FBC-4722-94BD-96FA171A5333": {
+      "1": 500,
+      "2": 500,
+      "3": 500,
+      "4": 500,
+      "5": 500,
+      "6": 500,
+      "7": 500,
+      "8": 500,
+      "9": 500
+    }
+  },
+  "ZONE_MAPPING": {
+    "Aエリア": ["ras_01", "ras_02", "ras_03", "ras_04"],
+    "Bエリア": ["ras_03", "ras_04", "ras_05", "ras_06"],
+    "Cエリア": ["ras_02", "ras_04", "ras_07", "ras_08"],
+    "Dエリア": ["ras_04", "ras_06", "ras_08", "ras_09"]
+  },
+  "ZONE_BOUNDARIES": {
+    "Aエリア": {"x_min": 1600, "x_max": 3600, "y_min": 2100, "y_max": 4810},
+    "Bエリア": {"x_min": 3601, "x_max": 6600, "y_min": 2100, "y_max": 4810},
+    "Cエリア": {"x_min": 1600, "x_max": 3600, "y_min": 4811, "y_max": 8000},
+    "Dエリア": {"x_min": 3601, "x_max": 6600, "y_min": 4811, "y_max": 8000}
+  },
+  "MINOR_ID_TO_PI_NAME_MAP": {
+    "1": "ras_01",
+    "2": "ras_02",
+    "3": "ras_03",
+    "4": "ras_04",
+    "5": "ras_05",
+    "6": "ras_06",
+    "7": "ras_07",
+    "8": "ras_08",
+    "9": "ras_09"
+  },
+  "MAP_SETTINGS": {
+    "x_range": [-1000, 9000],
+    "y_range": [-2500, 9500],
+    "entrance_annotations": [
+      {"x": 9200, "y": 0, "text": "△ENT.△", "angle": -90},
+      {"x": 9200, "y": 11625, "text": "△ENT.△", "angle": -90}
+    ],
+    "pi_annotation_y_offset": 500
+  },
+  "SHAPELY_SETTINGS": {
+    "expand_percent": 10,
+    "max_expand": 10,
+    "min_beacons_required": 3,
+    "beacons_to_use": 3
+  },
+  "POSITION_STALENESS_MINUTES": 5,
+  "DASHBOARD_SETTINGS": {
+    "update_interval_ms": 10000,
+    "max_line_chart_points": 20
+  },
+  "ALERT_THRESHOLDS": {
+    "temp_low": 23.0,
+    "temp_high": 25.0,
+    "humidity_low": 30.0,
+    "humidity_high": 70.0,
+    "lux_low": 200.0,
+    "lux_high": 600.0,
+    "co2_high": 400.0
+  },
+  "RECOMMENDATION_THRESHOLDS": {
+    "temp_cool_max": 23.0,
+    "temp_warm_min": 25.0,
+    "occupancy_quiet_max": 1,
+    "occupancy_busy_min": 3,
+    "light_bright_min": 600,
+    "light_dark_max": 300
+  }
+}
+
+

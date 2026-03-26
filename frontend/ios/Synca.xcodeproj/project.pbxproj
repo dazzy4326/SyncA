@@ -1,0 +1,605 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		F13F22CF2EC5D6FF003A222C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F13F22B92EC5D6FD003A222C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F13F22C02EC5D6FD003A222C;
+			remoteInfo = tohata_ios_02;
+		};
+		F13F22D92EC5D6FF003A222C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F13F22B92EC5D6FD003A222C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F13F22C02EC5D6FD003A222C;
+			remoteInfo = tohata_ios_02;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		F13F22C12EC5D6FD003A222C /* tohata_ios_02.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tohata_ios_02.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F13F22CE2EC5D6FF003A222C /* tohata_ios_02Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = tohata_ios_02Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F13F22D82EC5D6FF003A222C /* tohata_ios_02UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = tohata_ios_02UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		F13F22C32EC5D6FD003A222C /* tohata_ios_02 */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = tohata_ios_02;
+			sourceTree = "<group>";
+		};
+		F13F22D12EC5D6FF003A222C /* tohata_ios_02Tests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = tohata_ios_02Tests;
+			sourceTree = "<group>";
+		};
+		F13F22DB2EC5D6FF003A222C /* tohata_ios_02UITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = tohata_ios_02UITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F13F22BE2EC5D6FD003A222C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F13F22CB2EC5D6FF003A222C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F13F22D52EC5D6FF003A222C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F13F22B82EC5D6FD003A222C = {
+			isa = PBXGroup;
+			children = (
+				F13F22C32EC5D6FD003A222C /* tohata_ios_02 */,
+				F13F22D12EC5D6FF003A222C /* tohata_ios_02Tests */,
+				F13F22DB2EC5D6FF003A222C /* tohata_ios_02UITests */,
+				F13F22C22EC5D6FD003A222C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F13F22C22EC5D6FD003A222C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F13F22C12EC5D6FD003A222C /* tohata_ios_02.app */,
+				F13F22CE2EC5D6FF003A222C /* tohata_ios_02Tests.xctest */,
+				F13F22D82EC5D6FF003A222C /* tohata_ios_02UITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F13F22C02EC5D6FD003A222C /* tohata_ios_02 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F13F22E22EC5D6FF003A222C /* Build configuration list for PBXNativeTarget "tohata_ios_02" */;
+			buildPhases = (
+				F13F22BD2EC5D6FD003A222C /* Sources */,
+				F13F22BE2EC5D6FD003A222C /* Frameworks */,
+				F13F22BF2EC5D6FD003A222C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				F13F22C32EC5D6FD003A222C /* tohata_ios_02 */,
+			);
+			name = tohata_ios_02;
+			packageProductDependencies = (
+			);
+			productName = tohata_ios_02;
+			productReference = F13F22C12EC5D6FD003A222C /* tohata_ios_02.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F13F22CD2EC5D6FF003A222C /* tohata_ios_02Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F13F22E52EC5D6FF003A222C /* Build configuration list for PBXNativeTarget "tohata_ios_02Tests" */;
+			buildPhases = (
+				F13F22CA2EC5D6FF003A222C /* Sources */,
+				F13F22CB2EC5D6FF003A222C /* Frameworks */,
+				F13F22CC2EC5D6FF003A222C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F13F22D02EC5D6FF003A222C /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F13F22D12EC5D6FF003A222C /* tohata_ios_02Tests */,
+			);
+			name = tohata_ios_02Tests;
+			packageProductDependencies = (
+			);
+			productName = tohata_ios_02Tests;
+			productReference = F13F22CE2EC5D6FF003A222C /* tohata_ios_02Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		F13F22D72EC5D6FF003A222C /* tohata_ios_02UITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F13F22E82EC5D6FF003A222C /* Build configuration list for PBXNativeTarget "tohata_ios_02UITests" */;
+			buildPhases = (
+				F13F22D42EC5D6FF003A222C /* Sources */,
+				F13F22D52EC5D6FF003A222C /* Frameworks */,
+				F13F22D62EC5D6FF003A222C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F13F22DA2EC5D6FF003A222C /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F13F22DB2EC5D6FF003A222C /* tohata_ios_02UITests */,
+			);
+			name = tohata_ios_02UITests;
+			packageProductDependencies = (
+			);
+			productName = tohata_ios_02UITests;
+			productReference = F13F22D82EC5D6FF003A222C /* tohata_ios_02UITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F13F22B92EC5D6FD003A222C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2610;
+				LastUpgradeCheck = 2610;
+				TargetAttributes = {
+					F13F22C02EC5D6FD003A222C = {
+						CreatedOnToolsVersion = 26.1.1;
+					};
+					F13F22CD2EC5D6FF003A222C = {
+						CreatedOnToolsVersion = 26.1.1;
+						TestTargetID = F13F22C02EC5D6FD003A222C;
+					};
+					F13F22D72EC5D6FF003A222C = {
+						CreatedOnToolsVersion = 26.1.1;
+						TestTargetID = F13F22C02EC5D6FD003A222C;
+					};
+				};
+			};
+			buildConfigurationList = F13F22BC2EC5D6FD003A222C /* Build configuration list for PBXProject "Synca" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = F13F22B82EC5D6FD003A222C;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = F13F22C22EC5D6FD003A222C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F13F22C02EC5D6FD003A222C /* tohata_ios_02 */,
+				F13F22CD2EC5D6FF003A222C /* tohata_ios_02Tests */,
+				F13F22D72EC5D6FF003A222C /* tohata_ios_02UITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F13F22BF2EC5D6FD003A222C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F13F22CC2EC5D6FF003A222C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F13F22D62EC5D6FF003A222C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F13F22BD2EC5D6FD003A222C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F13F22CA2EC5D6FF003A222C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F13F22D42EC5D6FF003A222C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F13F22D02EC5D6FF003A222C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F13F22C02EC5D6FD003A222C /* tohata_ios_02 */;
+			targetProxy = F13F22CF2EC5D6FF003A222C /* PBXContainerItemProxy */;
+		};
+		F13F22DA2EC5D6FF003A222C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F13F22C02EC5D6FD003A222C /* tohata_ios_02 */;
+			targetProxy = F13F22D92EC5D6FF003A222C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		F13F22E02EC5D6FF003A222C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		F13F22E12EC5D6FF003A222C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F13F22E32EC5D6FF003A222C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2JZB55WW86;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "tohata-ios-02-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = SyncA;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "近くのビーコンを検知するために使用します。";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "オフィス内での位置を特定し、最適なワークスペースを提案するために、常に位置情報を利用します。";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "近くのビーコンを検出するために位置情報を使用します。";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tohata.synca;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F13F22E42EC5D6FF003A222C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2JZB55WW86;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "tohata-ios-02-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = SyncA;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "近くのビーコンを検知するために使用します。";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "オフィス内での位置を特定し、最適なワークスペースを提案するために、常に位置情報を利用します。";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "近くのビーコンを検出するために位置情報を使用します。";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tohata.synca;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		F13F22E62EC5D6FF003A222C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2JZB55WW86;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "tohata-tag.tohata-ios-02Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/tohata_ios_02.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/tohata_ios_02";
+			};
+			name = Debug;
+		};
+		F13F22E72EC5D6FF003A222C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2JZB55WW86;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "tohata-tag.tohata-ios-02Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/tohata_ios_02.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/tohata_ios_02";
+			};
+			name = Release;
+		};
+		F13F22E92EC5D6FF003A222C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "tohata-tag.tohata-ios-02UITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = tohata_ios_02;
+			};
+			name = Debug;
+		};
+		F13F22EA2EC5D6FF003A222C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "tohata-tag.tohata-ios-02UITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = tohata_ios_02;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F13F22BC2EC5D6FD003A222C /* Build configuration list for PBXProject "Synca" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F13F22E02EC5D6FF003A222C /* Debug */,
+				F13F22E12EC5D6FF003A222C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F13F22E22EC5D6FF003A222C /* Build configuration list for PBXNativeTarget "tohata_ios_02" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F13F22E32EC5D6FF003A222C /* Debug */,
+				F13F22E42EC5D6FF003A222C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F13F22E52EC5D6FF003A222C /* Build configuration list for PBXNativeTarget "tohata_ios_02Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F13F22E62EC5D6FF003A222C /* Debug */,
+				F13F22E72EC5D6FF003A222C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F13F22E82EC5D6FF003A222C /* Build configuration list for PBXNativeTarget "tohata_ios_02UITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F13F22E92EC5D6FF003A222C /* Debug */,
+				F13F22EA2EC5D6FF003A222C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F13F22B92EC5D6FD003A222C /* Project object */;
+}

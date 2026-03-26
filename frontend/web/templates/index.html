@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synca - 環境モニタリングダッシュボード</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- App CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modal.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Three.js (ES Module importmap) -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="sticky-top-bar">
+            <header>
+                <a href="#" id="header-home" class="header-brand" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">
+                    <img src="{{ url_for('static', filename='images/synca_logo.png') }}" alt="SyncA" class="brand-logo">
+                    <span class="brand-text">SyncA</span>
+                </a>
+                <div class="header-right">
+                    <div id="clock" class="clock"></div>
+                    <button id="settings-btn" class="settings-gear-btn" title="設定">&#9881;</button>
+                </div>
+            </header>
+            <nav class="section-nav">
+                <a href="#heatmap-section">ヒートマップ</a>
+                <a href="#preference-section">お好み選択</a>
+                <a href="#recommendation-section">おすすめエリア</a>
+                <a href="#timeseries-section">時系列トレンド</a>
+                <a href="#distribution-section">拠点別比較</a>
+                <a href="#average-section">全体平均</a>
+                <a href="#social-section">ソーシャル</a>
+            </nav>
+        </div>
+        <div id="user-search-section" class="user-search-bar">
+            <div class="user-search-input-wrap">
+                <span class="user-search-icon">&#128269;</span>
+                <input type="text" id="user-search-input" placeholder="ユーザー検索（名前・スキル・職種・プロジェクト経験...）" autocomplete="off">
+                <button id="user-search-clear" class="user-search-clear" style="display:none;">&times;</button>
+            </div>
+            <div class="user-search-controls">
+                <div class="search-filter-group">
+                    <select id="search-filter-dept" class="search-select">
+                        <option value="">部署: すべて</option>
+                    </select>
+                    <select id="search-filter-job" class="search-select">
+                        <option value="">職種: すべて</option>
+                    </select>
+                </div>
+                <div class="search-sort-group">
+                    <select id="search-sort" class="search-select">
+                        <option value="name">名前 (A→Z)</option>
+                        <option value="name_desc">名前 (Z→A)</option>
+                        <option value="department">部署別</option>
+                        <option value="job_title">職種別</option>
+                        <option value="updated">更新日順</option>
+                    </select>
+                </div>
+            </div>
+            <div id="user-search-results" class="user-search-results" style="display:none;"></div>
+        </div>
+        <main class="dashboard-grid">
+            <div class="left-panel">
+                <div id="heatmap-section" class="card heatmap-container">
+                    <div class="card-header">
+                        <h3>リアルタイムヒートマップ</h3>
+                        <div class="tabs">
+                            <button class="tab-btn active" data-sensor="temp">温度</button>
+                            <button class="tab-btn" data-sensor="humidity">湿度</button>
+                            <button class="tab-btn" data-sensor="lux">照度</button>
+                            <button class="tab-btn" data-sensor="co2">CO2</button>
+                            <button id="view-toggle-btn" class="view-toggle-btn" title="2D/3D切り替え">3D</button>
+                        </div>
+                    </div>
+                    <div id="heatmap-wrapper">
+                        <div id="leaflet-map"></div>
+                        <div id="three-map" style="display:none;"></div>
+                    </div>
+                    <div id="colorbar" class="colorbar">
+                        <canvas id="colorbar-canvas" width="300" height="14"></canvas>
+                        <div class="colorbar-labels">
+                            <span id="colorbar-min">--</span>
+                            <span id="colorbar-max">--</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="preference-section" class="card">
+                    <div class="card-header">
+                        <h3>お好み選択</h3>
+                    </div>
+                    <div class="preference-grid">
+                        <label for="pref-temp">温度:</label>
+                        <select id="pref-temp">
+                            <option value="any">指定なし</option>
+                            <option value="cool">涼しい (23°C以下)</option>
+                            <option value="warm">暖かい (25°C以上)</option>
+                        </select>
+                        <label for="pref-occupancy">混雑度:</label>
+                        <select id="pref-occupancy">
+                            <option value="any">指定なし</option>
+                            <option value="quiet">空いている (1人以下)</option>
+                            <option value="busy">賑やか (3人以上)</option>
+                        </select>
+                        <label for="pref-light">明るさ:</label>
+                        <select id="pref-light">
+                            <option value="any">指定なし</option>
+                            <option value="bright">明るい (600lx以上)</option>
+                            <option value="dark">暗め (300lx以下)</option>
+                        </select>
+                        <label for="pref-humidity">湿度:</label>
+                        <select id="pref-humidity">
+                            <option value="any">指定なし</option>
+                            <option value="dry">乾燥 (40%以下)</option>
+                            <option value="humid">多湿 (60%以上)</option>
+                        </select>
+                        <label for="pref-co2">CO2濃度:</label>
+                        <select id="pref-co2">
+                            <option value="any">指定なし</option>
+                            <option value="fresh">新鮮 (600ppm以下)</option>
+                            <option value="stuffy">換気不足 (1000ppm以上)</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="recommendation-section" class="card">
+                    <div class="card-header">
+                        <h3>おすすめエリア</h3>
+                    </div>
+                    <div id="recommendation-map-wrapper">
+                        <div id="recommendation-map"></div>
+                    </div>
+                    <div id="recommendation-message" class="recommendation-text">
+                        （好みを設定すると、おすすめが表示されます）
+                    </div>
+                    <div id="static-recommendation-message" class="static-recommendation-text">
+                        （分析中...）
+                    </div>
+                </div>
+            </div>
+            <div class="right-panel">
+                <div id="timeseries-section" class="card">
+                    <div class="card-header">
+                        <h3>時系列トレンド</h3>
+                        <div class="tabs chart-tabs" data-chart="line">
+                            <button class="tab-btn chart-tab-btn active" data-sensor="temp">温度</button>
+                            <button class="tab-btn chart-tab-btn" data-sensor="humidity">湿度</button>
+                            <button class="tab-btn chart-tab-btn" data-sensor="lux">照度</button>
+                            <button class="tab-btn chart-tab-btn" data-sensor="co2">CO2</button>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="lineChart"></canvas>
+                    </div>
+                </div>
+                <div id="distribution-section" class="card">
+                    <div class="card-header">
+                        <h3>拠点別 比較</h3>
+                        <div class="tabs chart-tabs" data-chart="bar">
+                            <button class="tab-btn chart-tab-btn active" data-sensor="temp">温度</button>
+                            <button class="tab-btn chart-tab-btn" data-sensor="humidity">湿度</button>
+                            <button class="tab-btn chart-tab-btn" data-sensor="lux">照度</button>
+                            <button class="tab-btn chart-tab-btn" data-sensor="co2">CO2</button>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+                <div id="average-section" class="card bottom-panel">
+                    <div class="card-header">
+                        <h3>拠点全体の平均</h3>
+                        <div id="average-alerts" class="alert-messages"></div>
+                    </div>
+                    <div class="gauge-wrapper">
+                        <canvas id="gaugeChart"></canvas>
+                        <div id="gauge-label" class="gauge-label">--- ppm</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ソーシャル機能セクション -->
+            <div id="social-section" class="full-width-panel" style="grid-column: 1 / -1;">
+                <div class="social-section-header">
+                    <button id="social-refresh-btn" class="btn-icon" title="ソーシャルデータを更新">&#x21bb;</button>
+                </div>
+                <div class="card" id="skill-search-card">
+                    <div class="card-header"><h3>スキルマッチング</h3></div>
+                    <div class="social-search-wrap">
+                        <input type="text" id="skill-search-input" placeholder="スキルで検索 (例: Python, Docker...)">
+                        <button id="skill-search-btn" class="btn-primary">検索</button>
+                    </div>
+                    <div id="skill-search-results" class="social-list"></div>
+                </div>
+
+                <div class="card" id="collab-board-card">
+                    <div class="card-header">
+                        <h3>コラボレーションボード</h3>
+                        <button id="btn-new-collab-post" class="btn-primary btn-sm">+ 投稿する</button>
+                    </div>
+                    <div id="collab-new-post-form" class="collab-form" style="display:none;">
+                        <select id="collab-post-type">
+                            <option value="help_wanted">助けを求む</option>
+                            <option value="reviewer_needed">レビュー依頼</option>
+                            <option value="pair_programming">ペアプロ</option>
+                            <option value="question">質問</option>
+                            <option value="offer">お手伝い</option>
+                        </select>
+                        <input type="text" id="collab-title" placeholder="タイトル">
+                        <textarea id="collab-desc" placeholder="詳細説明" rows="2"></textarea>
+                        <input type="text" id="collab-skills" placeholder="必要なスキル (カンマ区切り)">
+                        <div class="collab-form-actions">
+                            <button id="collab-cancel-btn" class="btn-secondary btn-sm">キャンセル</button>
+                            <button id="collab-submit-btn" class="btn-primary btn-sm">投稿</button>
+                        </div>
+                    </div>
+                    <div id="collab-post-list" class="social-list"></div>
+                </div>
+
+                <div class="card" id="lunch-match-card">
+                    <div class="card-header">
+                        <h3>ランチ・コーヒーマッチング</h3>
+                        <button id="btn-generate-lunch" class="btn-primary btn-sm">マッチを生成</button>
+                    </div>
+                    <div id="lunch-match-content" class="social-list"></div>
+                </div>
+
+                <div class="card" id="interaction-card">
+                    <div class="card-header">
+                        <h3>交流ヒートマップ</h3>
+                        <div class="interaction-period-btns" id="interaction-period-btns">
+                            <button class="period-btn" data-hours="12">12時間</button>
+                            <button class="period-btn" data-hours="24">24時間</button>
+                            <button class="period-btn" data-hours="72">3日間</button>
+                            <button class="period-btn active" data-hours="168">7日間</button>
+                        </div>
+                    </div>
+                    <div id="interaction-matrix" class="interaction-matrix"></div>
+                    <div id="interaction-suggestions" class="social-list"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Password Dialog -->
+    <div id="password-dialog" class="modal-overlay" style="display: none;">
+        <div class="password-dialog-content">
+            <h3>管理者認証</h3>
+            <p>設定画面にアクセスするにはパスワードを入力してください。</p>
+            <input type="password" id="settings-password" placeholder="パスワード" autocomplete="off">
+            <div id="password-error" class="password-error"></div>
+            <div class="password-dialog-buttons">
+                <button id="password-cancel-btn" class="btn-secondary">キャンセル</button>
+                <button id="password-submit-btn" class="btn-primary">認証</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>設定</h2>
+                <button id="modal-close-btn" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-tabs">
+                    <button class="settings-tab active" data-tab="floorplan">フロアプラン</button>
+                    <button class="settings-tab" data-tab="calibration">キャリブレーション</button>
+                    <button class="settings-tab" data-tab="beacons">ビーコン配置</button>
+                    <button class="settings-tab" data-tab="boundary">フロア外枠</button>
+                    <button class="settings-tab" data-tab="objects">オブジェクト</button>
+                    <button class="settings-tab" data-tab="configinfo">設定情報</button>
+                    <button class="settings-tab" data-tab="users">ユーザー管理</button>
+                </div>
+
+                <!-- Tab 1: Floor Plan Upload -->
+                <div class="settings-panel active" id="panel-floorplan">
+                    <h3>フロアプラン画像</h3>
+                    <p>現在の画像: <span id="current-floorplan-name">未設定</span></p>
+                    <input type="file" id="floorplan-upload" accept="image/jpeg,image/png">
+                    <button id="btn-upload-floorplan" class="btn-primary">アップロード</button>
+                    <div id="upload-status"></div>
+                    <div id="floorplan-preview" style="margin-top: 10px;"></div>
+                </div>
+
+                <!-- Tab 2: Calibration -->
+                <div class="settings-panel" id="panel-calibration">
+                    <h3>キャリブレーション</h3>
+                    <p class="settings-help">フロアプラン画像上でクリックして原点・縮尺を設定します。</p>
+                    <div id="calibration-map-container"></div>
+                    <div class="calibration-controls">
+                        <button id="btn-set-origin" class="btn-secondary">1. 原点(0,0)を設定</button>
+                        <button id="btn-set-scale" class="btn-secondary">2. 縮尺を設定</button>
+                        <button id="btn-save-calibration" class="btn-primary">縮尺を保存</button>
+                    </div>
+                    <div id="calibration-info" class="calibration-info">
+                        <p>原点: <span id="origin-display">未設定</span></p>
+                        <p>縮尺: <span id="scale-display">未設定</span> mm/px</p>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Beacon Placement -->
+                <div class="settings-panel" id="panel-beacons">
+                    <h3>ビーコン配置</h3>
+                    <p class="settings-help">マップをクリックしてビーコンを配置します。</p>
+                    <div id="beacon-map-container"></div>
+                    <div class="calibration-controls">
+                        <button id="btn-add-beacon" class="btn-secondary">ビーコンを追加</button>
+                    </div>
+                    <div id="beacon-list"></div>
+                </div>
+
+                <!-- Tab 4: Floor Boundary -->
+                <div class="settings-panel" id="panel-boundary">
+                    <h3>フロア外枠 (ヒートマップ描画範囲)</h3>
+                    <p class="settings-help">図面上の外枠をクリックして囲んでください。ヒートマップはこの範囲内のみ描画されます。</p>
+                    <div id="boundary-map-container"></div>
+                    <div class="calibration-controls">
+                        <button id="btn-start-boundary" class="btn-secondary">外枠の描画を開始</button>
+                        <button id="btn-finish-boundary" class="btn-secondary">外枠を確定</button>
+                        <button id="btn-clear-boundary" class="btn-secondary">外枠をクリア</button>
+                        <button id="btn-save-boundary" class="btn-primary">外枠を保存</button>
+                    </div>
+                    <div id="boundary-info" class="calibration-info">
+                        <p>頂点数: <span id="boundary-point-count">0</span></p>
+                    </div>
+                </div>
+
+                <!-- Tab 5: Floor Objects -->
+                <div class="settings-panel" id="panel-objects">
+                    <h3>フロアオブジェクト</h3>
+                    <p class="settings-help">壁・机・柱・棚・植物・椅子・モニター・窓を管理します。マップクリックまたは手動入力で追加できます。</p>
+
+                    <!-- オブジェクト配置ツールバー -->
+                    <div class="object-toolbar">
+                        <div class="object-type-selector">
+                            <button class="obj-type-btn active" data-objtype="wall" title="壁">🧱 壁</button>
+                            <button class="obj-type-btn" data-objtype="desk" title="机">🪑 机</button>
+                            <button class="obj-type-btn" data-objtype="pillar" title="柱">⬜ 柱</button>
+                            <button class="obj-type-btn" data-objtype="shelf" title="棚">📚 棚</button>
+                            <button class="obj-type-btn" data-objtype="plant" title="植物">🌿 植物</button>
+                            <button class="obj-type-btn" data-objtype="chair" title="椅子">💺 椅子</button>
+                            <button class="obj-type-btn" data-objtype="monitor" title="モニター">🖥️ モニター</button>
+                            <button class="obj-type-btn" data-objtype="window" title="窓">🪟 窓</button>
+                        </div>
+                        <div class="object-draw-controls">
+                            <button id="btn-draw-object" class="btn-secondary">配置モード開始</button>
+                            <span id="object-draw-status" class="draw-status"></span>
+                        </div>
+                    </div>
+
+                    <!-- マップ -->
+                    <div id="objects-map-container"></div>
+
+                    <!-- 手動追加フォーム -->
+                    <details class="object-manual-add">
+                        <summary>手動で追加</summary>
+                        <div class="object-form-grid">
+                            <label>種類</label>
+                            <select id="obj-type-select" class="settings-input">
+                                <option value="wall">壁</option>
+                                <option value="desk">机</option>
+                                <option value="pillar">柱</option>
+                                <option value="shelf">棚</option>
+                                <option value="plant">植物</option>
+                                <option value="chair">椅子</option>
+                                <option value="monitor">モニター</option>
+                                <option value="window">窓</option>
+                            </select>
+                            <label>X1 (mm)</label>
+                            <input type="number" id="obj-x1" class="settings-input" value="0">
+                            <label>Y1 (mm)</label>
+                            <input type="number" id="obj-y1" class="settings-input" value="0">
+                            <label>X2 (mm)</label>
+                            <input type="number" id="obj-x2" class="settings-input" value="1000">
+                            <label>Y2 (mm)</label>
+                            <input type="number" id="obj-y2" class="settings-input" value="0">
+                            <label>高さ (mm)</label>
+                            <input type="number" id="obj-height" class="settings-input" placeholder="自動">
+                            <label>高さ始点 (mm)</label>
+                            <input type="number" id="obj-height-start" class="settings-input" placeholder="窓のみ">
+                            <label>ラベル</label>
+                            <input type="text" id="obj-label" class="settings-input" placeholder="任意">
+                            <label>色 (hex)</label>
+                            <input type="text" id="obj-color" class="settings-input" placeholder="#FF6600">
+                            <label>個数</label>
+                            <input type="number" id="obj-count" class="settings-input" value="1" placeholder="椅子のみ">
+                            <label>回転 (°)</label>
+                            <input type="number" id="obj-rotation" class="settings-input" value="0" placeholder="椅子のみ">
+                        </div>
+                        <button id="btn-add-object-manual" class="btn-secondary" style="margin-top:8px;">追加</button>
+                    </details>
+
+                    <!-- オブジェクト一覧テーブル -->
+                    <div id="floor-objects-list" class="floor-objects-list">
+                        <p style="color:#9ca3af; font-size:0.9em;">読み込み中...</p>
+                    </div>
+
+                    <!-- 保存ボタン -->
+                    <div style="margin-top:10px; display:flex; gap:8px;">
+                        <button id="btn-save-floor-objects" class="btn-primary">オブジェクトを保存</button>
+                        <span id="objects-save-status" style="font-size:0.85em; line-height:38px;"></span>
+                    </div>
+                </div>
+
+                <!-- Tab 7: Config Info -->
+                <div class="settings-panel" id="panel-configinfo">
+                    <h3>設定情報</h3>
+                    <p class="settings-help">サーバーから取得した設定データの概要を表示します。</p>
+
+                    <div id="config-info-content">
+                        <p style="color:#9ca3af;">読み込み中...</p>
+                    </div>
+
+                    <button id="btn-reload-config" class="btn-primary" style="margin-top:15px;">設定を再読込</button>
+                </div>
+
+                <!-- Tab 8: User Management -->
+                <div class="settings-panel" id="panel-users">
+                    <h3>ユーザー管理</h3>
+                    <p class="settings-help">登録済みユーザーのプロフィール（画像・スキル・連絡先など）を管理します。</p>
+                    <div id="user-list" class="user-list"></div>
+                    <div id="user-edit-form" class="user-edit-form" style="display:none;">
+                        <h4 id="user-edit-title">プロフィール編集</h4>
+                        <div class="user-form-grid">
+                            <label>プロフィール画像</label>
+                            <div class="user-avatar-upload">
+                                <div id="user-avatar-preview" class="user-avatar-preview"></div>
+                                <input type="file" id="user-avatar-input" accept="image/jpeg,image/png,image/webp" style="display:none;">
+                                <button id="btn-choose-avatar" class="btn-secondary">画像を選択</button>
+                            </div>
+                            <label>ビーコンID</label>
+                            <input type="text" id="user-beacon-id" readonly class="settings-input">
+                            <label>名前</label>
+                            <input type="text" id="user-name-input" class="settings-input">
+                            <label>職種</label>
+                            <input type="text" id="user-job-input" class="settings-input" placeholder="例: エンジニア">
+                            <label>部署</label>
+                            <input type="text" id="user-dept-input" class="settings-input" placeholder="例: 開発部">
+                            <label>スキル</label>
+                            <input type="text" id="user-skills-input" class="settings-input" placeholder="例: Python, React, CAD">
+                            <label>趣味</label>
+                            <input type="text" id="user-hobbies-input" class="settings-input" placeholder="例: ランニング, 読書">
+                            <label>PJ経験</label>
+                            <input type="text" id="user-projects-input" class="settings-input" placeholder="例: 社内DX推進, 顧客管理システム">
+                            <label>メールアドレス</label>
+                            <input type="email" id="user-email-input" class="settings-input" placeholder="例: user@example.com">
+                            <label>電話番号</label>
+                            <input type="tel" id="user-phone-input" class="settings-input" placeholder="例: 090-1234-5678">
+                        </div>
+                        <div class="user-form-actions">
+                            <button id="btn-cancel-user-edit" class="btn-secondary">キャンセル</button>
+                            <button id="btn-save-user-profile" class="btn-primary">保存</button>
+                        </div>
+                        <div id="user-save-status"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <details>
+                    <summary>設定プレビュー (JSON)</summary>
+                    <pre id="config-output" style="max-height: 150px; overflow-y: auto; font-size: 0.8em;">（設定を変更すると表示されます）</pre>
+                </details>
+                <button id="btn-save-config" class="btn-primary">サーバーに保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="{{ url_for('static', filename='js/config.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/leaflet-map.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/settings-modal.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/charts.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/three-map.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/social.js') }}"></script>
+</body>
+</html>

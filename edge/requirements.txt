@@ -1,0 +1,20 @@
+# エッジデバイス（Raspberry Pi）用の依存パッケージ
+# pip install -r requirements.txt でインストール
+
+# I2C通信（BME280温湿度気圧センサー）
+smbus2>=0.4,<1.0
+
+# BME280センサードライバ
+RPi.bme280>=0.2,<1.0
+
+# シリアル通信（MH-Z19C CO2センサー）
+pyserial>=3.5,<4.0
+
+# データ集計
+pandas>=2.0,<3.0
+
+# APIサーバーへのHTTP送信
+requests>=2.28,<3.0
+
+# .envファイル読み込み
+python-dotenv>=0.21,<2.0

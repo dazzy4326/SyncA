@@ -1,0 +1,185 @@
+/* ===== モバイルファースト レスポンシブデザイン ===== */
+
+/* Base: モバイル (< 768px) */
+@media (max-width: 767px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        max-width: 100%;
+    }
+
+    .brand-logo {
+        height: 30px;
+    }
+
+    .clock {
+        font-size: 1em;
+    }
+
+    .section-nav a {
+        font-size: 0.8em;
+        padding: 6px 12px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    #heatmap-wrapper {
+        height: auto;
+        min-height: 250px;
+    }
+
+    .tab-btn {
+        padding: 6px 10px;
+        font-size: 0.8em;
+    }
+
+    .preference-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .gauge-wrapper {
+        width: 80%;
+    }
+
+    .gauge-label {
+        font-size: 1.4em;
+    }
+
+    #recommendation-map-wrapper {
+        width: 100%;
+        height: auto;
+        min-height: 180px;
+    }
+
+    /* モーダル モバイル対応 */
+    .modal-content {
+        width: 98%;
+        max-height: 95vh;
+        border-radius: 8px;
+    }
+
+    .settings-tabs {
+        flex-direction: column;
+    }
+
+    .settings-tab {
+        text-align: center;
+    }
+
+    #calibration-map-container,
+    #beacon-map-container,
+    #boundary-map-container {
+        height: 250px;
+    }
+
+    .calibration-controls {
+        flex-direction: column;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+    }
+
+    /* ユーザー管理フォーム モバイル対応 */
+    .user-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .user-avatar-upload {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* 検索コントロール モバイル対応 */
+    .user-search-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-sort-group {
+        margin-left: 0;
+    }
+
+    .search-select {
+        font-size: 0.75em;
+    }
+}
+
+/* タブレット (768px - 1199px) */
+@media (min-width: 768px) and (max-width: 1199px) {
+    body {
+        padding: 15px;
+    }
+
+    .brand-logo {
+        height: 36px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #heatmap-wrapper {
+        height: auto;
+        min-height: 300px;
+    }
+
+    .gauge-wrapper {
+        width: 60%;
+    }
+
+    #recommendation-map-wrapper {
+        height: auto;
+        min-height: 220px;
+    }
+
+    #calibration-map-container,
+    #beacon-map-container,
+    #boundary-map-container {
+        height: 350px;
+    }
+}
+
+/* デスクトップ (1200px+) */
+@media (min-width: 1200px) {
+    body {
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 1600px;
+    }
+
+    .brand-logo {
+        height: 44px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #heatmap-wrapper {
+        height: auto;
+        min-height: 350px;
+    }
+
+    .gauge-wrapper {
+        width: 50%;
+    }
+
+    .gauge-label {
+        font-size: 2em;
+    }
+
+    #recommendation-map-wrapper {
+        width: 100%;
+        height: auto;
+        min-height: 250px;
+    }
+}

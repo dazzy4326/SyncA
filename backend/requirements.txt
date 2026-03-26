@@ -1,0 +1,13 @@
+# tohata_web_app 依存パッケージ
+# ※ バージョンは互換範囲で指定（メジャー固定・マイナー以降は許容）
+flask>=2.2,<4.0
+flask-cors>=4.0,<7.0
+flask-sqlalchemy>=3.1,<4.0
+pymysql>=1.1,<2.0
+gunicorn>=21.0,<24.0
+shapely>=2.0,<3.0
+scipy>=1.11,<2.0
+numpy>=1.24,<2.0
+pandas>=2.0,<3.0
+python-dotenv>=0.21,<2.0
+Pillow>=10.0,<11.0

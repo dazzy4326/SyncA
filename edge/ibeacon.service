@@ -1,0 +1,16 @@
+[Unit]
+Description=iBeacon Broadcast Service
+# Bluetoothとネットワークの準備ができてから起動
+After=bluetooth.service network.target
+Requires=bluetooth.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/start_ibeacon.sh
+# 失敗しても自動で再試行する（重要）
+RemainAfterExit=yes
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

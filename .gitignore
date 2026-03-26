@@ -1,0 +1,44 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+*.egg
+
+# ===== 環境変数 =====
+.env
+!.env.example
+
+# ===== macOS =====
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ===== Xcode =====
+frontend/ios/Synca.xcodeproj/xcuserdata/
+frontend/ios/Synca.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcuserstate
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# ===== IDE =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===== ビルド =====
+buildServer.json
+
+# ===== その他 =====
+*.log
+*.tmp
