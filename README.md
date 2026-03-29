@@ -7,6 +7,25 @@
 
 ---
 
+## 目次
+
+1. [このプロジェクトで何ができるか](#このプロジェクトで何ができるか)
+2. [デモ](#デモ)
+3. [システム構成](#システム構成)
+4. [前提条件](#前提条件)
+5. [セットアップ手順](#セットアップ手順)
+6. [iOS アプリ詳細](#ios-アプリ詳細)
+7. [環境変数リファレンス](#環境変数リファレンス)
+8. [Make コマンド一覧](#make-コマンド一覧)
+9. [ディレクトリ構成](#ディレクトリ構成)
+10. [API エンドポイント一覧](#api-エンドポイント一覧)
+11. [技術スタック](#技術スタック)
+12. [測位の仕組み](#測位の仕組み)
+13. [トラブルシューティング](#トラブルシューティング)
+14. [ライセンス](#ライセンス)
+
+---
+
 ## このプロジェクトで何ができるか
 
 | 機能 | 説明 |
@@ -67,8 +86,12 @@
 
 | ソフトウェア | バージョン | 備考 |
 |---|---|---|
-| **Xcode** | 15 以上 | Mac App Store からインストール |
-| **iPhone 実機** | iOS 16 以上 | BLE スキャンにはシミュレーターは使用不可 |
+| **macOS** | Ventura 13.0 以上 | — |
+| **Xcode** | 15 以上（Swift 5.0） | Mac App Store からインストール |
+| **iPhone 実機** | iOS 15.6 以上 | BLE/iBeacon はシミュレータ非対応 |
+| **Apple Developer アカウント** | — | 実機ビルドに署名が必要（無料アカウント可、7日ごと再署名） |
+| **BLE ビーコン** | iBeacon 対応 9台 | UUID: `DD05B849-BB42-4AB8-B8F3-798B42440C4E`、Minor値 1〜9 |
+| **ネットワーク** | — | iPhone とサーバーが通信可能（同一LAN or ngrok） |
 
 ### エッジデバイス（Raspberry Pi）
 
@@ -152,13 +175,66 @@ make run-prod
 
 ### Step 3: iOS アプリのビルド（任意）
 
-1. `frontend/ios/Synca.xcodeproj` を Xcode で開く
-2. iPhone 実機を Mac に接続
-3. Xcode の Signing & Capabilities で自分の Apple ID を設定
-4. ビルド＆実行（`Cmd + R`）
-5. アプリ起動後、**管理者タブ**でサーバーの接続先を設定:
-   - 同じ WiFi 内なら `http://<Mac の IP>:5001`
-   - 外部公開なら ngrok の URL
+#### 方法 A: セットアップスクリプト（推奨）
+
+```bash
+cd frontend/ios/tohata_ios_02
+
+# セットアップ（サーバーURL と Apple Developer Team ID を対話入力）
+./setup.sh
+
+# Xcode で開く
+open Synca.xcodeproj
+```
+
+> `setup.sh` は `AppConfig.swift` のサーバーURLと、`project.pbxproj` の `DEVELOPMENT_TEAM` を書き換えます。
+
+#### 方法 B: 手動設定
+
+```bash
+cd frontend/ios
+open Synca.xcodeproj
+```
+
+以下を **手動** で変更してください：
+
+**手順 1: 署名設定（必須）**
+
+1. Xcode の **Settings → Accounts** で Apple ID にサインイン
+2. プロジェクトナビゲータで **Synca** を選択
+3. ターゲット **tohata_ios_02** → **Signing & Capabilities** タブ
+4. **Team** を自分の Apple Developer アカウントに変更
+5. 必要に応じて **Bundle Identifier** を変更（現在: `com.tohata.synca`）
+
+**手順 2: サーバーURL変更（必須）**
+
+`tohata_ios_02/AppConfig.swift` を開き、以下を変更：
+
+```swift
+// AppConfig.swift 14行目
+static let localURL = "https://ungnarled-bemazed-argelia.ngrok-free.dev"
+//                      ↑ ここを自分のサーバーURLに変更
+```
+
+ローカルLAN接続の場合:
+```swift
+static let localURL = "http://192.168.x.x:5001"
+```
+
+ngrok経由の場合:
+```swift
+static let localURL = "https://xxxxx.ngrok-free.dev"
+```
+
+> このURLはアプリ内の管理画面からも動的に変更可能です（UserDefaultsに保存）。
+
+**手順 3: ビルド＆実行**
+
+1. 実機 iPhone を USB 接続（シミュレータ不可）
+2. ビルドターゲットに実機を選択 → **Run**（`Cmd + R`）
+3. 初回起動時に **Bluetooth** と **位置情報** を **「常に許可」**
+
+> **外部ライブラリ（CocoaPods / SPM）は一切不要です。** クローン後そのままビルドできます。
 
 ### Step 4: エッジデバイスのセットアップ（任意）
 
@@ -202,6 +278,108 @@ sudo systemctl enable --now ibeacon.service        # iBeacon 発信
 sudo systemctl status env_sensing.service
 journalctl -u env_sensing.service -f              # ログをリアルタイム表示
 ```
+
+---
+
+## iOS アプリ詳細
+
+### 画面構成（5タブ）
+
+カスタムタブバーによる5画面構成です。
+
+#### タブ 1: ダッシュボード
+
+| セクション | 内容 |
+|---|---|
+| **ユーザー検索** | 名前・スキル・部署で検索。アイコンタップで位置ハイライト（位置あり）またはプロフィール表示（位置なし） |
+| **センサー概要カード** | 各拠点の温度・湿度・照度・CO2 を数値表示 |
+| **リアルタイムヒートマップ** | SceneKit 3Dフロアマップ上に環境データをヒートマップ重畳。タブで温度/湿度/照度/CO2切替 |
+| **お好み選択** | 温度・混雑度・明るさ・湿度・CO2 の好みを設定 → おすすめエリア表示 |
+| **時系列チャート** | Charts フレームワークで環境データの時間推移をグラフ表示 |
+| **拠点別比較** | 各拠点の環境データを棒グラフで比較 |
+
+**3Dフロアマップの特徴:**
+
+- **フロアオブジェクト**: 壁・机・柱・棚・植物・椅子・モニター・窓の8種をサーバー設定から読み込み
+- **人体モデル（6パーツ）**: 胴体 + 頭 + 両腕 + 両脚
+  - 移動中（立位）: 脚は垂直、腕はやや開く
+  - 静止中（座位）: 太ももは水平前方、すねは垂直、腕は前方（机に向かう姿勢）
+- **空中パルスハイライト**: ユーザーアイコンタップ時にY=1.5mの空中でパルスリング＋垂直ガイドライン表示。タップで解除可能
+- **動静ラベル**: 「移動中」「静止中」を3D空間内にオフセット配置
+
+#### タブ 2: ソーシャル
+
+| セクション | 内容 |
+|---|---|
+| **スキルマッチング** | スキルキーワードで検索。位置あり→ハイライト、位置なし→プロフィール |
+| **近くのマッチ** | 半径3m以内でスキル・趣味が合うユーザーを表示 |
+| **コラボレーションボード** | ヘルプ募集・ディスカッション・告知の投稿と応答 |
+| **ランチマッチング** | 趣味・プロジェクトの共通点でマッチした相手を表示 |
+| **交流分析** | 他ユーザーとの交流頻度・履歴を可視化 |
+
+#### タブ 3: プロフィール
+
+ユーザー名・部署・職種・スキル・趣味・プロジェクト・連絡先の編集。プロフィール画像のアップロード。
+
+#### タブ 4: 測位
+
+ビーコンの受信状況（RSSI・距離）、測位計算結果、カルマンフィルタの状態をリアルタイム表示。デバッグ・検証用。
+
+#### タブ 5: 管理
+
+パスワード認証後にサーバー設定を編集：
+- サーバー接続URL（ローカル / ngrok 切替）
+- フロアプラン画像アップロード
+- キャリブレーション（原点・縮尺）
+- ビーコン配置座標
+- フロア外枠（境界ポリゴン）
+- フロアオブジェクト（壁・机など）
+
+### iOS アプリ設定値
+
+すべて **`frontend/ios/tohata_ios_02/AppConfig.swift`** に一元管理されています。
+
+#### サーバー設定（ServerConfig）
+
+| 項目 | デフォルト | 説明 |
+|---|---|---|
+| `localURL` | ngrok URL | **必ず変更** — サーバーのURL |
+| `requestTimeoutInterval` | 3.0秒 | 通信タイムアウト |
+
+> ngrok ヘッダー（`ngrok-skip-browser-warning`）が自動付与されます。アプリ内管理画面からURLを動的に切替可能です。
+
+#### ビーコン設定（BeaconConfig）
+
+| 項目 | デフォルト | 説明 |
+|---|---|---|
+| `targetUUID` | `DD05B849-BB42-4AB8-B8F3-798B42440C4E` | ビーコンのUUID |
+| `coordinates` | 9台の(x,y)座標（mm） | ビーコン設置位置 |
+| `requiredBeaconCount` | 9 | 測位に必要なビーコン台数 |
+| `sampleCount` | 30 | フォアグラウンドのRSSIサンプル数 |
+| `backgroundSampleCount` | 5 | バックグラウンドのRSSIサンプル数 |
+| `maxValidDistanceMeters` | 50.0 | 有効最大距離(m) |
+
+#### 動静検知設定（SensorConfig）
+
+| 項目 | デフォルト | 説明 |
+|---|---|---|
+| `motionDetectionInterval` | 0.02秒(50Hz) | 動静検知ループ間隔 |
+| `motionThreshold` | 0.1G | 動き判定の閾値 |
+
+#### ユーザーデフォルト・選択肢
+
+- **UserDefaultsConfig**: 初期ユーザー名「ゲスト」、初期部署「other」など。`@AppStorage` に保存され端末に永続化
+- **PickerOptions**: 職種（エンジニア/マネージャー/営業/事務）、部署（開発部/営業部/総務部/その他）、ステータス（取込可/取込中/会議中/休憩中）
+
+### iOS アプリの必要な権限
+
+| 権限 | 用途 |
+|---|---|
+| **Bluetooth（常に許可）** | BLE ビーコンの検出 |
+| **位置情報（常に許可）** | iBeacon レンジング（バックグラウンド含む） |
+| **HTTP通信** | ATS無効化でローカルサーバーへHTTP通信を許可 |
+
+> 本番/App Store公開時は HTTPS に切り替えてください。
 
 ---
 
@@ -273,8 +451,22 @@ synca/
 │   │   ├── templates/           #     Jinja2 テンプレート
 │   │   └── static/              #     CSS / JS / 画像
 │   └── ios/                     #   iOS アプリ (SwiftUI)
-│       ├── Synca.xcodeproj/
+│       ├── Synca.xcodeproj/     #     ← Xcode で開くファイル
+│       ├── setup.sh             #     初期セットアップスクリプト
+│       ├── tohata-ios-02-Info.plist  # バックグラウンドモード・ATS設定
 │       └── tohata_ios_02/       #     Swift ソースコード
+│           ├── tohata_ios_02App.swift   # @main エントリーポイント（29行）
+│           ├── AppConfig.swift          # 全設定値の一元管理（162行）
+│           ├── ContentView.swift        # 5タブ構成・テーマ色定義（1111行）
+│           ├── Models.swift             # 全APIレスポンスの構造体（390行）
+│           ├── APIService.swift         # サーバー通信・データ公開（688行）
+│           ├── BeaconManager.swift      # ビーコン検出・測位計算・KF補正（805行）
+│           ├── NativeDashboardView.swift # ダッシュボード・ヒートマップ（1153行）
+│           ├── FloorMap3DView.swift      # SceneKit 3Dフロアマップ（1615行）
+│           ├── SocialView.swift          # スキル検索・コラボ・交流分析（2079行）
+│           ├── DashboardWebView.swift    # WKWebView 表示（77行）
+│           ├── AdminView.swift           # 管理者設定（2415行）
+│           └── Assets.xcassets/          # アプリアイコン・フロアプラン画像
 │
 ├── edge/                        # エッジデバイス (Raspberry Pi)
 │   ├── env_get_api.py           #   センサー値取得＆API 送信
@@ -288,6 +480,8 @@ synca/
 ├── LICENSE
 └── README.md
 ```
+
+**iOS アプリ合計: 約10,500行の Swift コード**
 
 ---
 
@@ -350,17 +544,57 @@ synca/
 - **Chart.js**（時系列グラフ・棒グラフ）
 
 ### iOS アプリ
-- **SwiftUI** + **Combine**
-- **CoreLocation**（iBeacon スキャン）
-- **CoreMotion**（加速度センサー / カルマンフィルター）
-- **SceneKit**（3D フロアマップ）
-- **Swift Charts**（ネイティブグラフ）
+
+すべて iOS 標準フレームワーク。**外部ライブラリは不要**。
+
+| フレームワーク | 用途 |
+|---|---|
+| **SwiftUI** | 全UI構築 |
+| **SceneKit** | 3Dフロアマップ・人体モデル・パルスアニメーション |
+| **CoreLocation** | iBeacon レンジング |
+| **CoreMotion** | 加速度センサー（動静検知） |
+| **Charts** | 時系列・棒グラフ描画 |
+| **WebKit** | WKWebView でサーバーダッシュボード表示 |
+| **Network** | ネットワーク状態監視 |
+| **Combine** | リアクティブデータバインディング |
+| **PhotosUI** | プロフィール画像選択 |
+| **UserNotifications** | 通知権限 |
 
 ### エッジデバイス
 - **Raspberry Pi** + Bluetooth
 - **BME280 / BH1750 / MH-Z19C** センサー
 - **smbus2 / pyserial**（I2C・UART 通信）
 - **systemd**（デーモン管理・自動起動）
+
+---
+
+## 測位の仕組み
+
+```
+[BLE ビーコン x9]
+       │ RSSI信号
+       ▼
+[CoreLocation iBeacon レンジング]
+       │ accuracy(m) → mm に変換
+       ▼
+[サンプリング] ── 各ビーコン30回収集 → 中央値
+       │ 9台分揃ったら
+       ▼
+[動静検知] ── CoreMotion 加速度 > 0.1G → 移動中/静止中をUI反映
+       │
+       ▼
+[三点測位] ── POST /api/calculate_from_iphone
+       │     サーバー側で距離が近い3台を選択
+       │     Shapely で3円の交差 → 重心を計算
+       ▼
+[境界クランプ] ── フロア外枠ポリゴンの外に出た場合、
+       │        最近傍の境界上の点に補正
+       ▼
+[サーバー送信] ── POST /api/add_location
+       │ x, y を受信・DB保存
+       ▼
+[3Dフロアマップ更新] ── 人体モデルの位置・姿勢を反映
+```
 
 ---
 
@@ -403,6 +637,25 @@ mysql -u flask_reader -p sensor_db -e "SHOW TABLES;"
 2. Mac の IP アドレスを確認: `ifconfig en0 | grep inet`
 3. アプリの管理者設定で `http://<Mac の IP>:5001` を入力
 4. Mac のファイアウォールがポート 5001 をブロックしていないか確認
+
+### iOS ビルド時のエラー
+
+| 症状 | 原因と対処 |
+|---|---|
+| `Signing requires a development team` | Signing & Capabilities で Team を設定。または `./setup.sh` を実行 |
+| `Provisioning profile` エラー | Xcode → Settings → Accounts で Apple ID にサインインし直す |
+| シミュレータでクラッシュ | **実機でのみ動作**。BLE/iBeacon はシミュレータ非対応 |
+| `tohata_ios_02.xcodeproj` が開けない | **`Synca.xcodeproj`** を使ってください。旧プロジェクトファイルは廃止 |
+
+### iOS 実行時のエラー
+
+| 症状 | 原因と対処 |
+|---|---|
+| 「位置情報の許可がありません」 | 設定 → プライバシー → 位置情報 → 本アプリ → **「常に許可」** |
+| ビーコンが検出されない | (1) Bluetooth ON確認 (2) ビーコン電源確認 (3) UUID/Minor値の一致確認 |
+| 「位置を計算中...」が続く | 9台全ビーコンの30回サンプリング完了を待つ（数十秒かかる） |
+| 「移動中」が出続ける | `SensorConfig.motionThreshold` を大きくして感度調整 |
+| ハイライトが消えない | ハイライトリング付近をタップして解除 |
 
 ### Raspberry Pi のセンサーが動かない
 

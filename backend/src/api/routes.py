@@ -175,89 +175,52 @@ def get_recommendations():
 @api_bp.route('/add_location', methods=['POST'])
 def api_add_location():
     """
-    [iPhone -> DB] KF補正後の「最終座標」を受け取り、
-    ★ スナップ/ログトグルに基づき処理、スナップ後の座標をiPhoneに返す ★
+    [iPhone -> DB] 三点測位の座標を受け取り、DBに保存してiPhoneに返す
     """
     data = request.get_json()
     if not data:
         return jsonify({'status': 'error', 'message': 'No data provided'}), 400
-    
+
     try:
-        # 1. iPhoneからすべての座標データを取得
         beacon_id = data.get('beacon_id')
         user_name = data.get('user_name', 'Unknown')
         job_title = data.get('job_title', 'unknown')
         department = data.get('department', 'other')
         status = data.get('status', 'available')
         is_moving = data.get('is_moving', False)
-        lsm_x = data.get('lsm_x')
-        lsm_y = data.get('lsm_y')
-        kf_x = data.get('kf_x')
-        kf_y = data.get('kf_y')
+        x = data.get('x')
+        y = data.get('y')
         pi_ids_list = data.get('pi_ids_used')
-
-        # 2. 2つのトグルの状態を取得
-        snap_enabled = data.get('snap_enabled', True)
-        detailed_logging = data.get('detailed_logging', False)
         calc_method = data.get('calc_method', 'UNKNOWN')
 
-        if not all([beacon_id, kf_x is not None, kf_y is not None, pi_ids_list]):
+        if not all([beacon_id, x is not None, y is not None, pi_ids_list]):
              return jsonify({'status': 'error', 'message': 'Missing required fields'}), 400
 
-        # 3. 境界クランプ（常に実行）+ スナップ処理
-        from .data_provider import snap_position_to_map, _clamp_to_floor_boundary, save_estimated_position_all, save_estimated_position_snapped_only
+        from .data_provider import save_estimated_position
 
-        # 境界クランプはsnap_enabledに関係なく常に実行（フロア外に出ないように）
-        final_x, final_y = _clamp_to_floor_boundary(kf_x, kf_y)
-        logger.debug(f" -> 境界クランプ: ({kf_x}, {kf_y}) → ({final_x}, {final_y})")
-            
-        # --- ▼▼▼ ★ 4. ログトグルでDB保存を切り替え ★ ▼▼▼ ---
-        
-        if detailed_logging:
-            # 「詳細ロギング」ON: 3種類すべての座標を保存
-            logger.debug(" -> 詳細ロギングが有効です。全座標を保存します。")
-            success, err_msg = save_estimated_position_all(
-                beacon_id=beacon_id,
-                user_name=user_name,
-                job_title=job_title,
-                department=department,
-                status=status,
-                lsm_x=lsm_x, lsm_y=lsm_y,
-                kf_x=kf_x, kf_y=kf_y,
-                final_x=final_x, final_y=final_y,
-                pi_ids_list=pi_ids_list,
-                calc_method=calc_method,
-                is_moving=is_moving
-            )
-        else:
-            logger.debug(" -> 詳細ロギングが無効です。スナップ後の座標のみ保存します。")
-            success, err_msg = save_estimated_position_snapped_only(
-                beacon_id=beacon_id,
-                user_name=user_name,
-                job_title=job_title,
-                department=department,
-                status=status,
-                final_x=final_x,
-                final_y=final_y,
-                pi_ids_list=pi_ids_list,
-                calc_method=calc_method,
-                is_moving=is_moving
-            )
-        
-        # --- ▲▲▲ 修正ここまで ▲▲▲ ---
-        
+        success, err_msg = save_estimated_position(
+            beacon_id=beacon_id,
+            user_name=user_name,
+            job_title=job_title,
+            department=department,
+            status=status,
+            x=x, y=y,
+            pi_ids_list=pi_ids_list,
+            calc_method=calc_method,
+            is_moving=is_moving
+        )
+
         if not success:
             return jsonify({'status': 'error', 'message': err_msg}), 500
 
-        # 5. iPhoneに「スナップ後の座標」を返す
         return jsonify({
-            'status': 'success', 
-            'snapped_x': final_x,
-            'snapped_y': final_y
+            'status': 'success',
+            'x': x,
+            'y': y
         }), 201
 
     except Exception as e:
-        logger.error(f"!!! /api/add_location (snap) ERROR: {e}", exc_info=True)
+        logger.error(f"!!! /api/add_location ERROR: {e}", exc_info=True)
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @api_bp.route('/add_raw_data_batch', methods=['POST'])
@@ -329,44 +292,10 @@ def api_add_env_data():
         return jsonify({'status': 'error', 'message': err_msg}), 500
 
 @api_bp.route('/calculate_from_iphone', methods=['POST'])
-# def api_calculate_from_iphone():
-#     """
-#     [iPhone -> Server(LSM) -> iPhone]
-#     LSMで測位計算し、結果（座標）をiPhoneに返す
-#     """
-#     data = request.get_json()
-#     if not data:
-#         return jsonify({'status': 'error', 'message': 'No data provided'}), 400
-
-#     beacon_id = data.get('beacon_id')
-#     raw_data_list = data.get('raw_data') 
-
-#     if not beacon_id or not raw_data_list:
-#         return jsonify({'status': 'error', 'message': 'Missing beacon_id or raw_data'}), 400
-
-#     # 1. (DB保存) 生データを location_data に保存
-#     save_raw_location_data(beacon_id, raw_data_list)
-    
-#     # 2. (計算) ★ LSMで測位 ★
-#     result_data, err_msg = calculate_least_squares_position(raw_data_list)
-    
-#     if err_msg:
-#         logger.warning(f"LSM計算が失敗したためiPhoneにエラーを返します: {err_msg}")
-#         return jsonify({'status': 'error', 'message': err_msg}), 500
-        
-#     # 3. (iPhoneに応答) 計算結果の座標 + pi_ids_used をJSONで返す
-#     logger.debug(f"iPhone '{beacon_id}' にLSM計算結果 {result_data} を返します。")
-#     return jsonify({
-#         "status": "success",
-#         "x": result_data['x'],
-#         "y": result_data['y'],
-#         "pi_ids_used": result_data['pi_ids_used']
-#     }), 200
-    
 def api_calculate_from_iphone():
     """
-    [iPhone -> Server(Shapely) -> iPhone]
-    iPhoneから中央値の距離データを受け取り、Shapelyで測位計算し、
+    [iPhone -> Server(Shapely三点測位) -> iPhone]
+    iPhoneから中央値の距離データを受け取り、三点測位で計算し、
     結果（座標）をiPhoneに返す
     """
     data = request.get_json()
@@ -374,36 +303,26 @@ def api_calculate_from_iphone():
         return jsonify({'status': 'error', 'message': 'No data provided'}), 400
 
     beacon_id = data.get('beacon_id')
-    raw_data_list = data.get('raw_data') # [ {"ras_pi_id": 8, "distance": 2500}, ... ]
+    raw_data_list = data.get('raw_data')
 
     if not beacon_id or not raw_data_list:
         return jsonify({'status': 'error', 'message': 'Missing beacon_id or raw_data'}), 400
 
-    # 1. (DB保存) 生データを location_data に保存
+    # 1. 生データを location_data に保存
     save_raw_location_data(beacon_id, raw_data_list)
-    
-    # 2. (計算) Shapelyで測位
+
+    # 2. Shapelyで三点測位
     result_data, err_msg = calculate_position_with_shapely(raw_data_list)
-    
+
     if err_msg:
-        logger.warning(f"Shapely計算が失敗したためiPhoneにエラーを返します: {err_msg}")
+        logger.warning(f"三点測位が失敗したためiPhoneにエラーを返します: {err_msg}")
         return jsonify({'status': 'error', 'message': err_msg}), 500
-        
-    # # 3. (DB保存) 計算結果を estimated_positions に保存
-    # save_estimated_position(
-    #     beacon_id=beacon_id,
-    #     est_x=result_data['x'],
-    #     est_y=result_data['y'],
-    #     pi_ids_list=result_data['pi_ids_used']
-    # )
-    
-    
-    
-    # 4. 境界クランプ（フロア外に出ないように）
+
+    # 3. フロア境界内にクランプ
     from .data_provider import _clamp_to_floor_boundary
     clamped_x, clamped_y = _clamp_to_floor_boundary(result_data['x'], result_data['y'])
 
-    # 5. (iPhoneに応答) 計算結果の座標 + pi_ids_used をJSONで返す
+    # 4. 計算結果をiPhoneに返す
     logger.debug(f"iPhone '{beacon_id}' に計算結果 ({clamped_x}, {clamped_y}) を返します。")
     return jsonify({
         "status": "success",

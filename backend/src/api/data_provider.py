@@ -223,7 +223,6 @@ def _clamp_to_floor_boundary(x, y):
         point = Point(x, y)
         if floor_polygon.contains(point):
             return x, y
-        # 境界外 → 最近傍の境界上の点にクランプ
         nearest_pt = nearest_points(point, floor_polygon.exterior)[1]
         logger.debug(f"境界クランプ: ({x}, {y}) → ({nearest_pt.x}, {nearest_pt.y})")
         return nearest_pt.x, nearest_pt.y
@@ -232,16 +231,10 @@ def _clamp_to_floor_boundary(x, y):
         return x, y
 
 
-def snap_position_to_map(raw_x, raw_y):
+def save_estimated_position(beacon_id, user_name, job_title, department, status,
+                            x, y, pi_ids_list, calc_method, is_moving=False):
     """
-    計算された座標をフロア境界内にクランプする（椅子・廊下スナップは廃止）
-    """
-    raw_x, raw_y = _clamp_to_floor_boundary(raw_x, raw_y)
-    return raw_x, raw_y
-    
-def save_estimated_position_all(beacon_id, user_name, job_title, department, status,lsm_x, lsm_y, kf_x, kf_y, final_x, final_y, pi_ids_list, calc_method, is_moving=False):
-    """
-    [API -> DB] (詳細ログON) 3種類すべての座標を estimated_positions に保存する
+    [API -> DB] 三点測位の座標を estimated_positions に保存する
     """
     pi_ids_used_str = ",".join(map(str, pi_ids_list))
     try:
@@ -251,13 +244,11 @@ def save_estimated_position_all(beacon_id, user_name, job_title, department, sta
 
         sql = text("""
             INSERT INTO estimated_positions
-            (timestamp, beacon_id,
-             obs_x, obs_y, kf_x, kf_y, est_x, est_y,
+            (timestamp, beacon_id, x, y,
              pi_ids_used, actual_x, actual_y, calc_method,
              user_name, job_title, department, status, is_moving)
             VALUES (
-             NOW(), :beacon_id,
-             :obs_x, :obs_y, :kf_x, :kf_y, :est_x, :est_y,
+             NOW(), :beacon_id, :x, :y,
              :pi_ids_str, :actual_x, :actual_y, :calc_method,
              :user_name, :job_title, :dept, :status, :is_moving)
         """)
@@ -269,9 +260,7 @@ def save_estimated_position_all(beacon_id, user_name, job_title, department, sta
             "dept": department,
             "status": status,
             "is_moving": 1 if is_moving else 0,
-            "obs_x": lsm_x, "obs_y": lsm_y,
-            "kf_x": kf_x, "kf_y": kf_y,
-            "est_x": final_x, "est_y": final_y,
+            "x": x, "y": y,
             "pi_ids_str": pi_ids_used_str,
             "actual_x": actual_x, "actual_y": actual_y,
             "calc_method": calc_method,
@@ -280,53 +269,7 @@ def save_estimated_position_all(beacon_id, user_name, job_title, department, sta
         return True, None
     except Exception as e:
         db.session.rollback()
-        logger.error(f"!!! iPhone全座標DB保存中にエラー: {e}", exc_info=True)
-        return False, str(e)
-
-
-def save_estimated_position_snapped_only(beacon_id, user_name, final_x, final_y, pi_ids_list, calc_method,
-                                         job_title=None, department=None, status=None, is_moving=False):
-    """
-    [API -> DB] (詳細ログOFF) スナップ後の最終座標「のみ」を保存する
-    """
-    pi_ids_used_str = ",".join(map(str, pi_ids_list))
-    try:
-        ground_truth = BEACON_GROUND_TRUTH.get(beacon_id)
-        actual_x = ground_truth[0] if ground_truth else None
-        actual_y = ground_truth[1] if ground_truth else None
-
-        sql = text("""
-            INSERT INTO estimated_positions
-            (timestamp, beacon_id,
-             obs_x, obs_y, kf_x, kf_y, est_x, est_y,
-             pi_ids_used, actual_x, actual_y, calc_method,
-             user_name, job_title, department, status, is_moving)
-            VALUES (
-             NOW(), :beacon_id,
-             NULL, NULL, NULL, NULL, :est_x, :est_y,
-             :pi_ids_str, :actual_x, :actual_y, :calc_method,
-             :user_name, :job_title, :dept, :status, :is_moving)
-        """)
-
-        db.session.execute(sql, {
-            "beacon_id": beacon_id,
-            "user_name": user_name,
-            "job_title": job_title,
-            "dept": department,
-            "status": status,
-            "is_moving": 1 if is_moving else 0,
-            "est_x": final_x,
-            "est_y": final_y,
-            "pi_ids_str": pi_ids_used_str,
-            "actual_x": actual_x,
-            "actual_y": actual_y,
-            "calc_method": calc_method
-        })
-        db.session.commit()
-        return True, None
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"!!! iPhone(スナップのみ)DB保存中にエラー: {e}", exc_info=True)
+        logger.error(f"!!! iPhone座標DB保存中にエラー: {e}", exc_info=True)
         return False, str(e)
 
 def save_raw_location_data(beacon_id, raw_data_list):
@@ -387,8 +330,8 @@ def get_latest_iphone_positions():
             ep.job_title AS job,
             ep.department AS dept,
             ep.status,
-            ep.est_x AS x,
-            ep.est_y AS y,
+            ep.x AS x,
+            ep.y AS y,
             COALESCE(ep.is_moving, 0) AS is_moving,
             up.profile_image
         FROM (
@@ -525,85 +468,6 @@ def calculate_position_with_shapely(raw_data_list):
     except Exception as e:
         logger.error(f"Shapely計算ロジックエラー: {e}", exc_info=True)
         return None, "Shapely calculation error"
-
-# def calculate_least_squares_position(raw_data_list):
-#     """
-#     iPhoneから受け取った距離データリスト (N>=3) を使い、
-#     最小二乗法 (LSM) で測位計算を行う
-    
-#     raw_data_list の形式: [ {"ras_pi_id": 8, "distance": 2500}, ... ]
-#     """
-    
-#     if len(raw_data_list) < 3:
-#         logger.warning("LSM計算: 3台未満のデータのためスキップ")
-#         return None, "Not enough data"
-
-#     try:
-#         # 1. データを準備 (行列A と ベクトルb)
-#         # (利用可能な全データ（例: 9台）を使うため、近い3台に絞り込む処理は行わない)
-#         num_equations = len(raw_data_list) - 1
-        
-#         # (N-1) x 2 の行列 A と、 (N-1) x 1 のベクトル b
-#         matrix_a = np.zeros((num_equations, 2))
-#         vector_b = np.zeros(num_equations)
-
-#         # 基準点（アンカー0）をリストの最初のビーコンとする
-#         item_0 = raw_data_list[0]
-#         pi_name_0 = MINOR_ID_TO_PI_NAME_MAP.get(str(item_0['ras_pi_id']))
-#         if not pi_name_0: raise KeyError(f"Minor ID {item_0['ras_pi_id']} がマッピングにありません")
-        
-#         x0 = BEACON_POSITIONS[pi_name_0][0]
-#         y0 = BEACON_POSITIONS[pi_name_0][1]
-#         d0_sq = item_0['distance'] ** 2
-#         k0 = x0**2 + y0**2
-
-#         # (N-1)個の方程式を作成 (i=1 から N-1 まで)
-#         for i in range(num_equations):
-#             item_i = raw_data_list[i + 1]
-#             pi_name_i = MINOR_ID_TO_PI_NAME_MAP.get(str(item_i['ras_pi_id']))
-#             if not pi_name_i: raise KeyError(f"Minor ID {item_i['ras_pi_id']} がマッピングにありません")
-
-#             xi = BEACON_POSITIONS[pi_name_i][0]
-#             yi = BEACON_POSITIONS[pi_name_i][1]
-#             di_sq = item_i['distance'] ** 2
-#             ki = xi**2 + yi**2
-
-#             # A行列のi行目
-#             matrix_a[i, 0] = 2.0 * (x0 - xi)
-#             matrix_a[i, 1] = 2.0 * (y0 - yi)
-            
-#             # bベクトルのi行目
-#             vector_b[i] = (di_sq - d0_sq) - (ki - k0)
-
-#     except KeyError as e:
-#         logger.error(f"LSM計算: BEACON_POSITIONS またはマッピングに Minor ID {e} が見つかりません")
-#         return None, "Beacon position not configured"
-#     except Exception as e:
-#         logger.error(f"LSM計算: データ準備エラー: {e}")
-#         return None, "Data processing error"
-
-#     # 2. NumPyを使って最小二乗法 (A * x = b) を解く
-#     try:
-#         # np.linalg.lstsq は、x (解) と、残差 (誤差) などを返す
-#         solution, residuals, rank, s = np.linalg.lstsq(matrix_a, vector_b, rcond=None)
-        
-#         est_x = solution[0]
-#         est_y = solution[1]
-        
-#         # 3. 計算結果を返す (pi_ids_used には入力データすべてのIDを返す)
-#         pi_ids_used = [item['ras_pi_id'] for item in raw_data_list]
-        
-#         return {"x": est_x, "y": est_y, "pi_ids_used": pi_ids_used}, None
-
-#     except np.linalg.LinAlgError as e:
-#         # 特異行列などで計算が失敗した場合
-#         logger.error(f"LSM計算ロジックエラー (LinAlgError): {e}", exc_info=True)
-#         return None, "LSM calculation error"
-#     except Exception as e:
-#         logger.error(f"LSM計算ロジックエラー: {e}", exc_info=True)
-#         return None, "Unknown LSM error"
-
-# # --- ▲▲▲ 追加ここまで ▲▲▲ ---
 
 def save_beacon_config(new_beacon_positions, new_minor_map):
     """
