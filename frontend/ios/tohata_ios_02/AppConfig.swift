@@ -10,7 +10,7 @@ import SwiftUI
 
 // MARK: - サーバー設定
 enum ServerConfig {
-    static let ngrokURL = "https://your-server.ngrok-free.dev"
+    static let ngrokURL = "https://ungnarled-bemazed-argelia.ngrok-free.dev"
 
     /// LAN接続のデフォルトポート
     static let defaultPort = 5000
@@ -81,7 +81,6 @@ enum ServerConfig {
     // APIエンドポイント
     enum Endpoint {
         static let addLocation       = "/api/add_location"
-        static let addRawDataBatch   = "/api/add_raw_data_batch"
         static let calculateFromIPhone = "/api/calculate_from_iphone"
         static let updateUserProfile = "/api/update_user_profile"
         static let uploadProfileImage = "/api/upload_profile_image"
@@ -192,19 +191,13 @@ enum BeaconConfig {
     static let maxValidDistanceMeters = 50.0
 }
 
-// MARK: - センサー / カルマンフィルター設定
+// MARK: - 動静検知設定
 enum SensorConfig {
-    /// KF予測ループの更新間隔 (秒) = 50Hz
-    static let kfInterval: TimeInterval = 0.02
-    
+    /// 動静検知ループの更新間隔 (秒) = 50Hz
+    static let motionDetectionInterval: TimeInterval = 0.02
+
     /// 動き判定の閾値 (G)
     static let motionThreshold: Double = 0.1
-    
-    /// KF補正の観測値反映比率 (0.0〜1.0)
-    static let kfObservationWeight: Double = 0.7
-    
-    /// 重力加速度 → mm/s² への変換係数
-    static let gravityToMillimetersPerSecSquared: Double = 9800.0
 }
 
 // MARK: - ユーザーデフォルト設定
