@@ -10,19 +10,10 @@ import CoreLocation
 import Combine
 import UIKit
 import CoreMotion
-import Accelerate
 import Network
 import UserNotifications
 
 class BeaconManager: NSObject, ObservableObject, CLLocationManagerDelegate {
-    
-    /*
-     * 測位ロジックの切り替え
-     * true: 【サーバー計算 (Shapely)】
-     * false: 【iPhone計算 (LSM)】
-     */
-    private let useServerSideShapely: Bool = true
-    
     
     // (B) @Published プロパティ
     @Published var estimatedPosition: (x: Double, y: Double)? = nil
@@ -68,9 +59,6 @@ class BeaconManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var currentDepartment: String = UserDefaultsConfig.defaultDepartment
     @Published var currentStatus: String = UserDefaultsConfig.defaultStatus
     
-    private let isSnappingEnabled: Bool = false       // マップスナップ無効化
-    private let isDetailedLoggingEnabled: Bool = true //  詳細ロギングのトグル
-    
     private var locationManager: CLLocationManager!
     
     private var networkMonitor: NWPathMonitor?
@@ -84,7 +72,7 @@ class BeaconManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     // ---動静検知用のプロパティ---
     private var motionManager: CMMotionManager!
     private var motionTimer: Timer?
-    private let motionInterval = SensorConfig.kfInterval
+    private let motionInterval = SensorConfig.motionDetectionInterval
     @Published var isUserMoving: Bool = false
     private let motionThreshold = SensorConfig.motionThreshold
     
@@ -416,20 +404,9 @@ class BeaconManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         // 4. 測位計算（移動中/静止中に関わらず常に実行）
         if beaconsForTrilateration.count == BeaconConfig.requiredBeaconCount {
             DispatchQueue.main.async { self.positioningPhase = .calculating }
-            if useServerSideShapely {
-                processingLogText += "--- 中央値をサーバー(Shapely)に送信し、計算をリクエスト... ---"
-                requestShapelyPositionFromServer(beaconsForTrilateration)
-                self.medianDistances.removeAll()
-            } else {
-                if let lsmPosition = calculateLeastSquaresPosition(beacons: beaconsForTrilateration) {
-                    let pi_ids_used = beaconsForTrilateration.map { $0.minor }
-                    submitPosition(x: lsmPosition.x, y: lsmPosition.y, pi_ids_used: pi_ids_used, calcMethod: "LSM")
-                    sendRawDataToServer(beaconsForTrilateration)
-                } else {
-                    processingLogText += "--- 位置の計算に失敗しました (LSM) ---"
-                }
-                self.medianDistances.removeAll()
-            }
+            processingLogText += "--- 中央値をサーバー(三点測位)に送信し、計算をリクエスト... ---"
+            requestShapelyPositionFromServer(beaconsForTrilateration)
+            self.medianDistances.removeAll()
         } else {
             processingLogText += "計算に必要な\(BeaconConfig.requiredBeaconCount)台の中央値が揃っていません。 (現在: \(beaconsForTrilateration.count)台)"
             DispatchQueue.main.async { self.positioningPhase = .insufficientBeacons }
@@ -451,7 +428,7 @@ class BeaconManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
     }
 
-    // --- BLE測位結果をサーバーに直接送信（KFなし） ---
+    // --- BLE測位結果をサーバーに送信 ---
     private func submitPosition(x: Double, y: Double, pi_ids_used: [Int], calcMethod: String) {
         let pos = (x: floor(x), y: floor(y))
         print("[BLE] 測位結果: (\(pos.x), \(pos.y)) method=\(calcMethod)")
@@ -462,46 +439,7 @@ class BeaconManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         )
     }
 
-    // --- LSM計算関数 ---
-    private func calculateLeastSquaresPosition(beacons: [(minor: Int, coordinates: (x: Double, y: Double), distance: Double)]) -> (x: Double, y: Double)? {
-        guard beacons.count == BeaconConfig.requiredBeaconCount else { return nil }
-        let numEquations = beacons.count - 1
-        var matrixA = [Double](repeating: 0.0, count: numEquations * 2)
-        var vectorB = [Double](repeating: 0.0, count: numEquations)
-        let x0 = beacons[0].coordinates.x
-        let y0 = beacons[0].coordinates.y
-        let d0_sq = beacons[0].distance * beacons[0].distance
-        let k0 = x0*x0 + y0*y0
-        for i in 0..<numEquations {
-            let beacon_i = beacons[i + 1]
-            let xi = beacon_i.coordinates.x
-            let yi = beacon_i.coordinates.y
-            let di_sq = beacon_i.distance * beacon_i.distance
-            let ki = xi*xi + yi*yi
-            matrixA[i*2 + 0] = 2.0 * (x0 - xi)
-            matrixA[i*2 + 1] = 2.0 * (y0 - yi)
-            vectorB[i] = (di_sq - d0_sq) - (ki - k0)
-        }
-        var n = Int32(numEquations)
-        var m = Int32(2)
-        var nrhs = Int32(1)
-        var info: Int32 = 0
-        var lwork = Int32(max(1, Int(m + n))) * 2
-        var work = [Double](repeating: 0.0, count: Int(lwork))
-        var A_copy = matrixA
-        var b_copy = vectorB
-        var trans: CChar = 78
-        var lda = n
-        var ldb = n
-        dgels_(&trans, &n, &m, &nrhs, &A_copy, &lda, &b_copy, &ldb, &work, &lwork, &info)
-        if info == 0 {
-            return (x: b_copy[0], y: b_copy[1])
-        } else {
-            return nil
-        }
-    }
-    
-    // --- Shapelyフォールバック用 ---
+    // --- 三点測位フォールバック用 ---
     private func calculateTrilateration(beacon1: (coordinates: (x: Double, y: Double), distance: Double),
                                         beacon2: (coordinates: (x: Double, y: Double), distance: Double),
                                         beacon3: (coordinates: (x: Double, y: Double), distance: Double)) -> (x: Double, y: Double)? {
@@ -566,11 +504,8 @@ class BeaconManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             "job_title": self.currentJobTitle,
             "department": self.currentDepartment,
             "status": self.currentStatus,
-            "lsm_x": position.x, "lsm_y": position.y,
-            "kf_x": position.x, "kf_y": position.y,
+            "x": position.x, "y": position.y,
             "pi_ids_used": pi_ids_used,
-            "snap_enabled": self.isSnappingEnabled,
-            "detailed_logging": self.isDetailedLoggingEnabled,
             "calc_method": calcMethod,
             "is_moving": self.isUserMoving
         ]
@@ -595,14 +530,14 @@ class BeaconManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             do {
                 if let jsonResponse = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
                    let status = jsonResponse["status"] as? String, status == "success",
-                   let snappedX = jsonResponse["snapped_x"] as? Double,
-                   let snappedY = jsonResponse["snapped_y"] as? Double {
+                   let posX = jsonResponse["x"] as? Double,
+                   let posY = jsonResponse["y"] as? Double {
                     DispatchQueue.main.async {
-                        self.estimatedPosition = (x: floor(snappedX), y: floor(snappedY))
+                        self.estimatedPosition = (x: floor(posX), y: floor(posY))
                         self.positioningPhase = .positioned
                         self.lastPositionedAt = Date()
                         self.showWifiAlert = false
-                        print("[DB] UI更新: (\(snappedX), \(snappedY))")
+                        print("[DB] UI更新: (\(posX), \(posY))")
                         // ニアバイ通知チェック (60秒に1回)
                         self.checkNearbyMatchesIfNeeded()
                     }
@@ -612,22 +547,6 @@ class BeaconManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         task.resume()
     }
     
-    private func sendRawDataToServer(_ rawData: [(minor: Int, coordinates: (x: Double, y: Double), distance: Double)]) {
-        guard let url = ServerConfig.url(for: ServerConfig.Endpoint.addRawDataBatch) else { return }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        let rawDataList = rawData.map { ["ras_pi_id": $0.minor, "distance": $0.distance] }
-        let body: [String: Any] = ["beacon_id": self.deviceID, "raw_data": rawDataList]
-        do { request.httpBody = try JSONSerialization.data(withJSONObject: body, options: []) } catch { return }
-        let task = ServerConfig.session.dataTask(with: request) { data, response, error in
-            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 201 {
-                print("[DB-RAW] 成功 (201)")
-            }
-        }
-        task.resume()
-    }
-
     private func requestShapelyPositionFromServer(_ rawData: [(minor: Int, coordinates: (x: Double, y: Double), distance: Double)]) {
         guard let url = ServerConfig.url(for: ServerConfig.Endpoint.calculateFromIPhone) else { return }
         beginBackgroundTask()
@@ -664,7 +583,6 @@ class BeaconManager: NSObject, ObservableObject, CLLocationManagerDelegate {
 
                     DispatchQueue.main.async {
                         self.showWifiAlert = false
-                        // BLE測位結果を直接送信（KFなし）
                         self.submitPosition(x: obs_x, y: obs_y, pi_ids_used: pi_ids_used, calcMethod: "SHAPELY")
                     }
                 } else {
