@@ -27,7 +27,7 @@ RASPBERRY_PI_ID = os.environ.get("RASPBERRY_PI_ID", "ras_02")
 # --- ▼▼▼ ★2. 接続先を環境変数から取得 ▼▼▼ ---
 
 # **APIサーバーのURL (環境変数から取得)**
-API_ENDPOINT_URL = os.environ.get("API_ENDPOINT_URL", "https://ungnarled-bemazed-argelia.ngrok-free.dev/api/add_env_data")
+API_ENDPOINT_URL = os.environ.get("API_ENDPOINT_URL", "https://your-server.ngrok-free.dev/api/add_env_data")
 
 # --- ▲▲▲ 修正ここまで ▲▲▲ ---
 
