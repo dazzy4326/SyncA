@@ -14,7 +14,7 @@ CREATE DATABASE IF NOT EXISTS sensor_db
 
 -- ユーザーの作成（既に存在する場合はスキップ）
 CREATE USER IF NOT EXISTS 'flask_reader'@'localhost'
-  IDENTIFIED BY 'Tohata_4326';
+  IDENTIFIED BY 'your_db_password';
 
 -- 権限の付与
 GRANT ALL PRIVILEGES ON sensor_db.* TO 'flask_reader'@'localhost';

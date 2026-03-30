@@ -100,7 +100,7 @@ if [[ "${SETUP_DB,,}" == "y" ]]; then
     else
         # .env から DB 情報を読み込み
         DB_USER=$(grep '^DB_USER=' .env 2>/dev/null | cut -d= -f2 || echo "flask_reader")
-        DB_PASSWORD=$(grep '^DB_PASSWORD=' .env 2>/dev/null | cut -d= -f2 || echo "Tohata_4326")
+        DB_PASSWORD=$(grep '^DB_PASSWORD=' .env 2>/dev/null | cut -d= -f2 || echo "your_db_password")
         DB_HOST=$(grep '^DB_HOST=' .env 2>/dev/null | cut -d= -f2 || echo "localhost")
         DB_NAME=$(grep '^DB_NAME=' .env 2>/dev/null | cut -d= -f2 || echo "sensor_db")
 

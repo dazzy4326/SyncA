@@ -40,7 +40,7 @@ def create_app():
     CORS(app) # CORSを先に設定
 
     # --- データベース設定 (環境変数から取得) ---
-    _default_password = 'Tohata_4326'
+    _default_password = 'your_db_password'
     db_user = os.environ.get('DB_USER', 'flask_reader')
     db_password = os.environ.get('DB_PASSWORD', _default_password)
     db_host = os.environ.get('DB_HOST', 'localhost')

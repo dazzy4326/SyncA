@@ -256,7 +256,7 @@
     }
   ],
   "POSITION_STALENESS_MINUTES": 1,
-  "ADMIN_PASSWORD": "tohata",
+  "ADMIN_PASSWORD": "your_admin_password",
 
   "SHAPELY_SETTINGS": {
     "min_beacons_required": 3,
