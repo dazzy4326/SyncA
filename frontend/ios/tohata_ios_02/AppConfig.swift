@@ -10,10 +10,10 @@ import SwiftUI
 
 // MARK: - サーバー設定
 enum ServerConfig {
-    static let ngrokURL = "https://ungnarled-bemazed-argelia.ngrok-free.dev"
+    static let ngrokURL = "https://your-server.ngrok-free.dev"
 
     /// LAN接続のデフォルトポート
-    static let defaultPort = 5000
+    static let defaultPort = 5001
 
     /// 現在の接続先URL（ユーザーが管理画面で切り替え可能）
     static var baseURL: String {
@@ -196,8 +196,8 @@ enum SensorConfig {
     /// 動静検知ループの更新間隔 (秒) = 50Hz
     static let motionDetectionInterval: TimeInterval = 0.02
 
-    /// 動き判定の閾値 (G)
-    static let motionThreshold: Double = 0.1
+    /// 動き判定の閾値 (G)： 歩くと検知されるくらい。携帯を手に持ったくらいではおそらく動きを検知しない。
+    static let motionThreshold: Double = 0.35
 }
 
 // MARK: - ユーザーデフォルト設定
