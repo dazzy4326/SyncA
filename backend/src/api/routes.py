@@ -5,7 +5,7 @@ import os
 from werkzeug.utils import secure_filename
 
 from .analysis import calculate_beacon_density, calculate_recommendations
-from .config_loader import ZONE_MAPPING, ZONE_BOUNDARIES, BEACON_GROUND_TRUTH, MAP_SETTINGS, ALERT_THRESHOLDS, RECOMMENDATION_THRESHOLDS, DASHBOARD_SETTINGS, PI_LOCATIONS, FLOORPLAN_IMAGE_CONFIG, CALIBRATION_CONFIG, FLOOR_BOUNDARY_CONFIG, FLOOR_OBJECTS_CONFIG, ADMIN_PASSWORD, BEACON_POSITIONS, MINOR_ID_TO_PI_NAME_MAP, reload_config
+from .config_loader import ZONE_MAPPING, ZONE_BOUNDARIES, BEACON_GROUND_TRUTH, MAP_SETTINGS, ALERT_THRESHOLDS, RECOMMENDATION_THRESHOLDS, DASHBOARD_SETTINGS, PI_LOCATIONS, FLOORPLAN_IMAGE_CONFIG, CALIBRATION_CONFIG, FLOOR_BOUNDARY_CONFIG, FLOOR_OBJECTS_CONFIG, ADMIN_PASSWORD, BEACON_POSITIONS, MINOR_ID_TO_PI_NAME_MAP, SOCIAL_SETTINGS, reload_config
 from .import config_loader as _cfg
 from .data_provider import (
     get_real_sensor_data,
@@ -252,7 +252,7 @@ def api_get_iphone_positions():
     if positions is not None:
         global _last_interaction_record
         now = _time.time()
-        if now - _last_interaction_record > 60:
+        if now - _last_interaction_record > SOCIAL_SETTINGS.get("interaction_record_interval_sec", 60):
             _last_interaction_record = now
             try:
                 record_current_interactions()
@@ -604,7 +604,7 @@ def api_skill_search():
 @api_bp.route('/nearby_matches')
 def api_nearby_matches():
     beacon_id = request.args.get('beacon_id', '')
-    radius_mm = int(request.args.get('radius_mm', 3000))
+    radius_mm = int(request.args.get('radius_mm', SOCIAL_SETTINGS.get("default_radius_mm", 3000)))
     try:
         matches, err = find_nearby_matches(beacon_id, radius_mm)
         if err:
@@ -622,7 +622,7 @@ def api_get_user_availability(beacon_id):
             return jsonify({"error": err}), 500
         if avail:
             return jsonify(avail)
-        return jsonify({"beacon_id": beacon_id, "nearby_notify_enabled": True, "notify_radius_mm": 3000, "lunch_available": False, "match_on_skills": True, "match_on_hobbies": True})
+        return jsonify({"beacon_id": beacon_id, "nearby_notify_enabled": True, "notify_radius_mm": SOCIAL_SETTINGS.get("default_notify_radius_mm", 3000), "lunch_available": False, "match_on_skills": True, "match_on_hobbies": True})
     except Exception as e:
         logger.error(f"Get availability error: {e}")
         return jsonify({"error": str(e)}), 500
@@ -738,7 +738,7 @@ def api_interaction_stats():
 @api_bp.route('/my_interactions')
 def api_my_interactions():
     beacon_id = request.args.get('beacon_id', '')
-    days = int(request.args.get('days', 7))
+    days = int(request.args.get('days', SOCIAL_SETTINGS.get("default_interaction_days", 7)))
     try:
         interactions, err = get_my_interactions(beacon_id=beacon_id, days=days)
         if err:

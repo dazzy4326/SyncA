@@ -14,7 +14,7 @@ CREATE DATABASE IF NOT EXISTS sensor_db
 
 -- ユーザーの作成（既に存在する場合はスキップ）
 CREATE USER IF NOT EXISTS 'flask_reader'@'localhost'
-  IDENTIFIED BY 'your-password-here';
+  IDENTIFIED BY 'Tohata_4326';
 
 -- 権限の付与
 GRANT ALL PRIVILEGES ON sensor_db.* TO 'flask_reader'@'localhost';
@@ -58,12 +58,8 @@ CREATE TABLE IF NOT EXISTS estimated_positions (
     job_title    VARCHAR(50),
     department   VARCHAR(50),
     status       VARCHAR(20),
-    obs_x        DECIMAL(10,3),
-    obs_y        DECIMAL(10,3),
-    kf_x         DECIMAL(10,3),
-    kf_y         DECIMAL(10,3),
-    est_x        DECIMAL(10,3),
-    est_y        DECIMAL(10,3),
+    x            DECIMAL(10,3),
+    y            DECIMAL(10,3),
     pi_ids_used  VARCHAR(255),
     actual_x     DECIMAL(10,3),
     actual_y     DECIMAL(10,3),

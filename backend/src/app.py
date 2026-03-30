@@ -2,6 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 import os
+import json
 import logging
 
 logger = logging.getLogger(__name__)
@@ -39,7 +40,7 @@ def create_app():
     CORS(app) # CORSを先に設定
 
     # --- データベース設定 (環境変数から取得) ---
-    _default_password = 'changeme'
+    _default_password = 'Tohata_4326'
     db_user = os.environ.get('DB_USER', 'flask_reader')
     db_password = os.environ.get('DB_PASSWORD', _default_password)
     db_host = os.environ.get('DB_HOST', 'localhost')
@@ -55,12 +56,19 @@ def create_app():
         f'mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_name}'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # 接続プール設定 (高負荷時の接続枯渇を防ぐ)
+    # 接続プール設定 (config_lab.json から読み込み)
+    _config_path = os.path.join(_BACKEND_DIR, 'data', 'config_lab.json')
+    _db_pool = {}
+    try:
+        with open(_config_path, 'r', encoding='utf-8') as _f:
+            _db_pool = json.load(_f).get("DB_POOL_SETTINGS", {})
+    except Exception:
+        pass
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-        'pool_size': 10,
-        'pool_recycle': 300,   # 5分でコネクションを再利用
-        'pool_pre_ping': True, # 切断されたコネクションを自動検出
-        'max_overflow': 5,
+        'pool_size': _db_pool.get('pool_size', 10),
+        'pool_recycle': _db_pool.get('pool_recycle', 300),
+        'pool_pre_ping': _db_pool.get('pool_pre_ping', True),
+        'max_overflow': _db_pool.get('max_overflow', 5),
     }
 
     # 'init_app' を使ってアプリと 'db' を関連付ける

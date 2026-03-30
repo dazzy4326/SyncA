@@ -9,7 +9,9 @@ from .config_loader import ZONE_MAPPING, ZONE_BOUNDARIES, RECOMMENDATION_THRESHO
 logger = logging.getLogger(__name__)
 
 
-def calculate_beacon_density(beacon_positions, x_range, y_range, grid_resolution=100):
+def calculate_beacon_density(beacon_positions, x_range, y_range, grid_resolution=None):
+    if grid_resolution is None:
+        grid_resolution = RECOMMENDATION_THRESHOLDS.get("grid_resolution", 100)
     """
     ビーコン位置リストからカーネル密度推定(KDE)を計算する
     """
@@ -176,7 +178,8 @@ def _generate_reason(zone_name, total_score, details, rank):
     """
     マッチ度合いに基づいてパーソナライズされた理由文を生成する
     """
-    if total_score >= 0.8:
+    excellent = RECOMMENDATION_THRESHOLDS.get("excellent_threshold", 0.8)
+    if total_score >= excellent:
         prefix = "とても良い条件が揃っています"
     elif total_score >= 0.5:
         prefix = "概ね好みに合っています"
@@ -280,7 +283,9 @@ def calculate_recommendations(pref_temp, pref_occupancy, pref_light, pref_humidi
                     avg_score = float(np.mean(scores))
                     min_score = float(np.min(scores))
                     # 最低スコアにペナルティ: 1項目でも大きく外れると全体が下がる
-                    combined = 0.7 * avg_score + 0.3 * min_score
+                    w_avg = RECOMMENDATION_THRESHOLDS.get("score_weight_avg", 0.7)
+                    w_min = RECOMMENDATION_THRESHOLDS.get("score_weight_min", 0.3)
+                    combined = w_avg * avg_score + w_min * min_score
                 else:
                     combined = 0.0
                     details = []
@@ -307,7 +312,8 @@ def calculate_recommendations(pref_temp, pref_occupancy, pref_light, pref_humidi
                 # 2位との差が小さい場合は代替案も提示
                 if len(zone_scores) >= 2:
                     runner = zone_scores[1]
-                    if runner['score'] > 0 and (best['score'] - runner['score']) < 0.15:
+                    score_diff_th = RECOMMENDATION_THRESHOLDS.get("score_diff_threshold", 0.15)
+                    if runner['score'] > 0 and (best['score'] - runner['score']) < score_diff_th:
                         custom_message += f"<br>**{runner['zone']}** も近い条件です。"
 
         return {

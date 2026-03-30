@@ -20,7 +20,7 @@ from itertools import combinations
 from sqlalchemy import text
 from ..app import db
 
-from .config_loader import ZONE_BOUNDARIES, POSITION_STALENESS_MINUTES
+from .config_loader import ZONE_BOUNDARIES, POSITION_STALENESS_MINUTES, SOCIAL_SETTINGS
 
 logger = logging.getLogger(__name__)
 
@@ -287,7 +287,9 @@ def get_matching_fields(profile_a, profile_b):
     return matching
 
 
-def find_nearby_matches(beacon_id, radius_mm=3000):
+def find_nearby_matches(beacon_id, radius_mm=None):
+    if radius_mm is None:
+        radius_mm = SOCIAL_SETTINGS.get("default_radius_mm", 3000)
     """
     指定ユーザーの現在位置から半径 radius_mm (mm) 以内にいるユーザーを検索し、
     共通スキル/趣味のマッチング情報を付与して返す。
@@ -652,7 +654,9 @@ def close_collab_post(post_id, beacon_id):
 #  Feature 4: インタラクション履歴
 # ==========================================================
 
-def record_current_interactions(proximity_threshold_mm=3000):
+def record_current_interactions(proximity_threshold_mm=None):
+    if proximity_threshold_mm is None:
+        proximity_threshold_mm = SOCIAL_SETTINGS.get("proximity_threshold_mm", 3000)
     """
     現在の全ユーザー位置を取得し、近接ペアを interaction_log に記録する。
     定期タスク (cronなど) から呼び出される想定。

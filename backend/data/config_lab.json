@@ -256,7 +256,51 @@
     }
   ],
   "POSITION_STALENESS_MINUTES": 1,
-  "ADMIN_PASSWORD": "admin",
+  "ADMIN_PASSWORD": "tohata",
+
+  "SHAPELY_SETTINGS": {
+    "min_beacons_required": 3,
+    "beacons_to_use": 3,
+    "expand_percent": 10,
+    "max_expand": 10
+  },
+
+  "RECOMMENDATION_THRESHOLDS": {
+    "temp_cool_max": 23.0,
+    "temp_warm_min": 25.0,
+    "temp_sigma": 3.0,
+    "occupancy_sigma": 2.0,
+    "occupancy_busy_min": 3,
+    "light_bright_min": 600,
+    "light_dark_max": 300,
+    "light_sigma": 250.0,
+    "humidity_dry_max": 40.0,
+    "humidity_humid_min": 60.0,
+    "humidity_sigma": 15.0,
+    "co2_fresh_max": 600.0,
+    "co2_stuffy_min": 1000.0,
+    "co2_sigma": 200.0,
+    "excellent_threshold": 0.8,
+    "score_weight_avg": 0.7,
+    "score_weight_min": 0.3,
+    "score_diff_threshold": 0.15,
+    "grid_resolution": 100
+  },
+
+  "SOCIAL_SETTINGS": {
+    "default_radius_mm": 3000,
+    "proximity_threshold_mm": 3000,
+    "interaction_record_interval_sec": 60,
+    "default_interaction_days": 7,
+    "default_notify_radius_mm": 3000
+  },
+
+  "DB_POOL_SETTINGS": {
+    "pool_size": 10,
+    "pool_recycle": 300,
+    "pool_pre_ping": true,
+    "max_overflow": 5
+  },
   "FLOOR_OBJECTS": [
     {
       "type": "desk",

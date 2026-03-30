@@ -46,6 +46,11 @@ try:
     FLOOR_OBJECTS_CONFIG = config.get("FLOOR_OBJECTS", [])
     ADMIN_PASSWORD = config.get("ADMIN_PASSWORD", "admin")
 
+    # ソーシャル機能設定
+    SOCIAL_SETTINGS = config.get("SOCIAL_SETTINGS", {})
+    # DB接続プール設定
+    DB_POOL_SETTINGS = config.get("DB_POOL_SETTINGS", {})
+
     logger.info(f"設定ファイル {CONFIG_JSON_PATH} の読み込み成功")
     
 except Exception as e:
@@ -65,6 +70,8 @@ except Exception as e:
     FLOOR_BOUNDARY_CONFIG = []
     FLOOR_OBJECTS_CONFIG = []
     ADMIN_PASSWORD = "admin"
+    SOCIAL_SETTINGS = {}
+    DB_POOL_SETTINGS = {}
 
 # 派生変数の定義 (config.json からロードした後に実行)
 PI_IDS = [pi['ras_pi_id'] for pi in PI_LOCATIONS]
@@ -92,6 +99,7 @@ def reload_config():
     global FLOORPLAN_IMAGE_CONFIG, CALIBRATION_CONFIG, FLOOR_BOUNDARY_CONFIG
     global FLOOR_OBJECTS_CONFIG
     global ADMIN_PASSWORD, PI_IDS, BEACON_POSITIONS
+    global SOCIAL_SETTINGS, DB_POOL_SETTINGS
 
     try:
         with open(CONFIG_JSON_PATH, 'r', encoding='utf-8') as f:
@@ -116,6 +124,8 @@ def reload_config():
         FLOOR_BOUNDARY_CONFIG = cfg.get("FLOOR_BOUNDARY", [])
         FLOOR_OBJECTS_CONFIG = cfg.get("FLOOR_OBJECTS", [])
         ADMIN_PASSWORD = cfg.get("ADMIN_PASSWORD", "admin")
+        SOCIAL_SETTINGS = cfg.get("SOCIAL_SETTINGS", {})
+        DB_POOL_SETTINGS = cfg.get("DB_POOL_SETTINGS", {})
         PI_IDS = [pi['ras_pi_id'] for pi in PI_LOCATIONS]
         BEACON_POSITIONS = {pi['ras_pi_id']: (pi['x'], pi['y']) for pi in PI_LOCATIONS}
 
